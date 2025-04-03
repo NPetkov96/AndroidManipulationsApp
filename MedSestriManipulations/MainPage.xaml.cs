@@ -85,7 +85,7 @@ namespace MedSestriManipulations
 
             var message = $"Пациент: {firstName} {lastName}\n ЕГН: {egn}\n\nИзбрани манипулации:\n" +
                           string.Join("\n \n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
-                          $"\n\nОбщо: {total} лв \n Сума с отсъпка: {Math.Round((double)total * 0.8, 2)} лв";
+                          $"\n\nОбщо: {total} лв \n Сума с отсъпка:{(total * 0.8m):F2} лв";
 
             await Clipboard.SetTextAsync(message);
 
