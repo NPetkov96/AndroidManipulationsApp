@@ -84,20 +84,19 @@ namespace MedSestriManipulations
             }
 
             var message = $"Пациент: {firstName} {lastName}\n ЕГН: {egn}\n\nИзбрани манипулации:\n" +
-                          string.Join("\n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
-                          $"\n\nОбщо: {total} лв \n Сума с отсъпка: {(double)total * 0.8}лв";
+                          string.Join("\n \n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
+                          $"\n\nОбщо: {total} лв \n Сума с отсъпка: {Math.Round((double)total * 0.8, 2)} лв";
 
             await Clipboard.SetTextAsync(message);
 
             try
             {
-                var viberUri = new Uri("viber://forward?text=" + Uri.EscapeDataString(message));
+                await Clipboard.SetTextAsync(message);
 
-                if (await Launcher.CanOpenAsync(viberUri))
-                {
-                    await Launcher.OpenAsync(viberUri);
-                }
-                //await DisplayAlert("Съобщението е копирано", "Постави текста във Viber чрез 'Paste'.", "OK");
+                await DisplayAlert(
+                    "Съобщението е копирано",
+                    "Текстът е копиран в клипборда.\n\nОтвори Viber и го постави ръчно (Paste) в чата.",
+                    "OK");
             }
             catch
             {
