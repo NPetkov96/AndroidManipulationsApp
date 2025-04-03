@@ -32,40 +32,6 @@ namespace MedSestriManipulations
                     procedure.PropertyChanged += Procedure_PropertyChanged;
                     AllProcedures.Add(procedure);
                 }
-            //}
-
-            //string[] lines = File.ReadAllLines(".");
-
-            //foreach (var line in lines)
-            //{
-            //    var parts = line.Split(';');
-            //    if (parts.Length == 2 && decimal.TryParse(parts[1], out var price))
-            //    {
-            //        var procedure = new MedicalProcedureViewModel
-            //        {
-            //            Name = parts[0],
-            //            Price = price,
-            //            IsSelected = false
-            //        };
-            //        procedure.PropertyChanged += Procedure_PropertyChanged;
-            //        AllProcedures.Add(procedure);
-            //    }
-
-                //}
-
-                //for (int i = 1; i <= 200; i++)
-                //{
-                //    var procedure = new MedicalProcedureViewModel
-                //    {
-                //        Name = $"Манипулация {i}",
-                //        Price = 10 + i,
-                //        IsSelected = false
-                //    };
-
-                //    procedure.PropertyChanged += Procedure_PropertyChanged;
-                //    AllProcedures.Add(procedure);
-                //}
-
                 FilterProcedures();
             }
         }
@@ -117,15 +83,20 @@ namespace MedSestriManipulations
                 return;
             }
 
-            var message = $"Пациент: {firstName} {lastName}\nЕГН: {egn}\n\nИзбрани манипулации:\n" +
+            var message = $"Пациент: {firstName} {lastName}\n ЕГН: {egn}\n\nИзбрани манипулации:\n" +
                           string.Join("\n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
-                          $"\n\nОбщо: {total} лв";
+                          $"\n\nОбщо: {total} лв \n Сума с отсъпка: {(double)total * 0.8}лв";
 
             await Clipboard.SetTextAsync(message);
 
             try
             {
-                await Launcher.OpenAsync("viber://");
+                var viberUri = new Uri("viber://forward?text=" + Uri.EscapeDataString(message));
+
+                if (await Launcher.CanOpenAsync(viberUri))
+                {
+                    await Launcher.OpenAsync(viberUri);
+                }
                 //await DisplayAlert("Съобщението е копирано", "Постави текста във Viber чрез 'Paste'.", "OK");
             }
             catch
