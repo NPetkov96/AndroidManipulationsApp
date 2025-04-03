@@ -14,13 +14,13 @@ namespace MedSestriManipulations
             InitializeComponent();
 
             var assembly = Assembly.GetExecutingAssembly();
-            using Stream stream = assembly.GetManifestResourceStream("MedSestriManipulations.Resources.Data.manipulations.txt");
+            using Stream stream = assembly.GetManifestResourceStream("MedSestriManipulations.Resources.Data.manipulations.txt")!;
             using StreamReader reader = new(stream);
 
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
-                var parts = line.Split(';');
+                var parts = line!.Split(';');
                 if (parts.Length == 2 && decimal.TryParse(parts[1], out var price))
                 {
                     var procedure = new MedicalProcedureViewModel
@@ -29,7 +29,7 @@ namespace MedSestriManipulations
                         Price = price,
                         IsSelected = false
                     };
-                    procedure.PropertyChanged += Procedure_PropertyChanged;
+                    procedure.PropertyChanged += Procedure_PropertyChanged!;
                     AllProcedures.Add(procedure);
                 }
                 FilterProcedures();
@@ -73,9 +73,9 @@ namespace MedSestriManipulations
             var selected = Procedures.Where(p => p.IsSelected).ToList();
             var total = selected.Sum(p => p.Price);
 
-            string firstName = FirstNameEntry.Text?.Trim();
-            string lastName = LastNameEntry.Text?.Trim();
-            string egn = EGNEntry.Text?.Trim();
+            string firstName = FirstNameEntry.Text?.Trim()!;
+            string lastName = LastNameEntry.Text?.Trim()!;
+            string egn = EGNEntry.Text?.Trim()!;
 
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(egn))
             {
@@ -107,7 +107,7 @@ namespace MedSestriManipulations
         public class MedicalProcedure
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public decimal Price { get; set; }
         }
 
@@ -127,7 +127,7 @@ namespace MedSestriManipulations
                 }
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangedEventHandler? PropertyChanged;
         }
 
         private void OnClearClicked(object sender, EventArgs e)
