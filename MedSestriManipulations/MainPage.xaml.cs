@@ -12,27 +12,46 @@ namespace MedSestriManipulations
         public MainPage()
         {
             InitializeComponent();
+            this.Loaded += MainPage_Loaded;
+        }
 
-            var assembly = Assembly.GetExecutingAssembly();
-            using Stream stream = assembly.GetManifestResourceStream("MedSestriManipulations.Resources.Data.manipulations.txt")!;
-            using StreamReader reader = new(stream);
+        private async void MainPage_Loaded(object? sender, EventArgs e)
+        {
+            await LoadProceduresAsync();
+        }
 
-            while (!reader.EndOfStream)
+        private async Task LoadProceduresAsync()
+        {
+            try
             {
-                var line = reader.ReadLine();
-                var parts = line!.Split(';');
-                if (parts.Length == 2 && decimal.TryParse(parts[1], out var price))
+                using var stream = await FileSystem.OpenAppPackageFileAsync("Resources/Data/manipulations.txt");
+                using StreamReader reader = new(stream);
+
+                while (!reader.EndOfStream)
                 {
-                    var procedure = new MedicalProcedureViewModel
+                    var line = await reader.ReadLineAsync();
+                    var parts = line!.Split(';');
+
+                    if (parts.Length == 2 && decimal.TryParse(parts[1], out var price))
                     {
-                        Name = $"{parts[0]} -",
-                        Price = price,
-                        IsSelected = false
-                    };
-                    procedure.PropertyChanged += Procedure_PropertyChanged!;
-                    AllProcedures.Add(procedure);
+                        var procedure = new MedicalProcedureViewModel
+                        {
+                            Name = $"{parts[0]} -",
+                            Price = price,
+                            IsSelected = false
+                        };
+                        procedure.PropertyChanged += Procedure_PropertyChanged!;
+                        AllProcedures.Add(procedure);
+                    }
                 }
+
                 FilterProcedures();
+            }
+            catch (Exception ex)
+            {
+                //await Application.Current.MainPage.DisplayAlert("Грешка", ex.Message, "OK");
+                await this.DisplayAlert("Грешка", ex.Message, "OK");
+
             }
         }
 
@@ -96,7 +115,7 @@ namespace MedSestriManipulations
                 return;
             }
 
-            var message = $"Пациент: {firstName} {lastName}\n ЕГН: {egn}\n\nИзбрани манипулации:\n" +
+            var message = $"Пациент: {firstName} {lastName}\n ЕГН: {egn}\n Телефонен номер: {phone}\n\nИзбрани манипулации:\n" +
                           string.Join("\n \n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
                           $"\n\nОбщо: {total} лв \n Сума с отсъпка:{(total * 0.8m):F2} лв";
 
