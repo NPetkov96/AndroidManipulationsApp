@@ -20,11 +20,20 @@
             <Label Text="Избери медицински манипулации" FontSize="20"/>
             <SearchBar x:Name="SearchBar" Placeholder="Търси манипулация..." TextChanged="OnSearchTextChanged"/>
 
+<<<<<<< HEAD
             <CollectionView x:Name="ProcedureList" ItemsSource="{Binding Procedures}" HeightRequest="500" Margin="0,0,0,10">
+=======
+            <!-- CollectionView с фиксирана височина за да работи със ScrollView -->
+            <CollectionView x:Name="ProcedureList"
+                            ItemsSource="{Binding Procedures}"
+                            HeightRequest="500"
+                            Margin="0,0,0,10">
+>>>>>>> refs/remotes/origin/master
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout Orientation="Horizontal" Padding="0,5,0,0">
                             <CheckBox IsChecked="{Binding IsSelected}" CheckedChanged="OnProcedureCheckedChanged"/>
+<<<<<<< HEAD
 
                             <!-- Обвиваме само името в StackLayout, за да закачим GestureRecognizer -->
                             <StackLayout Margin="5,7,0,0">
@@ -42,6 +51,22 @@
 
             <Label x:Name="TotalLabel" Text="Общо: 0.00 лв" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,10"/>
 
+=======
+                            <Label Text="{Binding Name}" Margin="5,7,0,0" FontSize="20"/>
+                            <Label Text="{Binding Price, StringFormat=' {0} лв'}" Margin="0,7,0,0" FontSize="20"/>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label x:Name="TotalLabel"
+                   Text="Общо: 0.00 лв"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   Margin="0,10,0,10"/>
+
+>>>>>>> refs/remotes/origin/master
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

@@ -20,6 +20,7 @@ namespace MedSestriManipulations
             AllProcedures = MedicalProcedureService.GetAllProcedures();
             foreach (var procedure in AllProcedures)
             {
+<<<<<<< HEAD
                 procedure.PropertyChanged += Procedure_PropertyChanged!;
             }
 
@@ -33,6 +34,12 @@ namespace MedSestriManipulations
             {
                 await DisplayAlert("Пълна информация", text, "Затвори");
             }
+=======
+                procedure.PropertyChanged += Procedure_PropertyChanged;
+            }
+
+            FilterProcedures();
+>>>>>>> refs/remotes/origin/master
         }
 
         private void Procedure_PropertyChanged(object sender, PropertyChangedEventArgs e)
