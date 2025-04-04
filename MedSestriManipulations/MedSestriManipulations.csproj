@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android<!--;net9.0-ios;net9.0-maccatalyst--></TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		<!--<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>-->
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
@@ -60,7 +60,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Data\manipulations.txt" />
+	  <AndroidResource Remove="Resources\Data\**" />
+	  <Compile Remove="Resources\Data\**" />
+	  <EmbeddedResource Remove="Resources\Data\**" />
+	  <MauiCss Remove="Resources\Data\**" />
+	  <MauiXaml Remove="Resources\Data\**" />
+	  <None Remove="Resources\Data\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -72,17 +77,13 @@
 	  <EmbeddedResource Include="Resources\Data\manipulations.txt" />
 	</ItemGroup>-->
 
-	<ItemGroup>
-		<MauiAsset Include="Resources\Data\manipulations.txt" />
-	</ItemGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<AndroidLinkMode>None</AndroidLinkMode>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
