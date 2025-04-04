@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Reflection;
 
 namespace MedSestriManipulations
 {
@@ -12,84 +11,61 @@ namespace MedSestriManipulations
         public MainPage()
         {
             InitializeComponent();
-            this.Loaded += MainPage_Loaded;
+            LoadProcedures();
+            FilterProcedures();
         }
 
-        private async void MainPage_Loaded(object? sender, EventArgs e)
+        private void LoadProcedures()
         {
-            await LoadProceduresAsync();
-        }
-
-        private async Task LoadProceduresAsync()
-        {
-            try
+            AllProcedures = MedicalProcedureService.GetAllProcedures();
+            foreach (var procedure in AllProcedures)
             {
-                using var stream = await FileSystem.OpenAppPackageFileAsync("Resources/Data/manipulations.txt");
-                using StreamReader reader = new(stream);
-
-                while (!reader.EndOfStream)
-                {
-                    var line = await reader.ReadLineAsync();
-                    var parts = line!.Split(';');
-
-                    if (parts.Length == 2 && decimal.TryParse(parts[1], out var price))
-                    {
-                        var procedure = new MedicalProcedureViewModel
-                        {
-                            Name = $"{parts[0]} -",
-                            Price = price,
-                            IsSelected = false
-                        };
-                        procedure.PropertyChanged += Procedure_PropertyChanged!;
-                        AllProcedures.Add(procedure);
-                    }
-                }
-
-                FilterProcedures();
+                procedure.PropertyChanged += Procedure_PropertyChanged;
             }
-            catch (Exception ex)
-            {
-                //await Application.Current.MainPage.DisplayAlert("Грешка", ex.Message, "OK");
-                await this.DisplayAlert("Грешка", ex.Message, "OK");
 
-            }
+            FilterProcedures();
         }
 
         private void Procedure_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MedicalProcedureViewModel.IsSelected))
-            {
                 UpdateTotal();
-            }
-        }
-
-        
-        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
-        {
-            FilterProcedures();
         }
 
         private void FilterProcedures()
         {
             var keyword = SearchBar.Text?.ToLower() ?? "";
             Procedures.Clear();
+
             foreach (var proc in AllProcedures)
             {
                 if (proc.Name.ToLower().Contains(keyword))
                     Procedures.Add(proc);
             }
+
             ProcedureList.ItemsSource = Procedures;
+        }
+
+        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+        {
+            FilterProcedures();
         }
 
         private void UpdateTotal()
         {
-            var total = Procedures.Where(p => p.IsSelected).Sum(p => p.Price);
-            TotalLabel.Text = $"Общо: {total} лв";
+            var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
+            TotalLabel.Text = $"Общо: {total:F2} лв";
         }
+
+        private void OnProcedureCheckedChanged(object sender, CheckedChangedEventArgs e)
+        {
+            UpdateTotal();
+        }
+
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
-            var selected = Procedures.Where(p => p.IsSelected).ToList();
+            var selected = AllProcedures.Where(p => p.IsSelected).ToList();
             var total = selected.Sum(p => p.Price);
 
             string firstName = FirstNameEntry.Text?.Trim()!;
@@ -115,36 +91,40 @@ namespace MedSestriManipulations
                 return;
             }
 
-            var message = $"Пациент: {firstName} {lastName}\n ЕГН: {egn}\n Телефонен номер: {phone}\n\nИзбрани манипулации:\n" +
-                          string.Join("\n \n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
-                          $"\n\nОбщо: {total} лв \n Сума с отсъпка:{(total * 0.8m):F2} лв";
-
-            await Clipboard.SetTextAsync(message);
+            var message = $"Пациент: {firstName} {lastName}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
+                          $"Избрани манипулации:\n" +
+                          string.Join("\n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
+                          $"\n\nОбщо: {total} лв\nСума с отстъпка: {(total * 0.8m):F2} лв";
 
             try
             {
                 await Clipboard.SetTextAsync(message);
-
-                await DisplayAlert(
-                    "Съобщението е копирано",
-                    "Текстът е копиран в клипборда.\n\nОтвори Viber и го постави ръчно (Paste) в чата.",
-                    "OK");
+                await DisplayAlert("Успешно", "Текстът е копиран. Постави го във Viber.", "OK");
             }
             catch
             {
-                await DisplayAlert("Грешка", "Viber не е инсталиран или не може да се отвори.", "OK");
+                await DisplayAlert("Грешка", "Неуспешно копиране. Увери се, че Viber е инсталиран.", "OK");
             }
         }
 
-        public class MedicalProcedure
+        private void OnClearClicked(object sender, EventArgs e)
         {
-            public int Id { get; set; }
-            public string Name { get; set; } = null!;
-            public decimal Price { get; set; }
+            FirstNameEntry.Text = "";
+            LastNameEntry.Text = "";
+            EGNEntry.Text = "";
+            PhoneEntry.Text = "";
+
+            foreach (var proc in AllProcedures)
+                proc.IsSelected = false;
+
+            UpdateTotal();
         }
 
-        public class MedicalProcedureViewModel : MedicalProcedure, INotifyPropertyChanged
+        public class MedicalProcedureViewModel : INotifyPropertyChanged
         {
+            public string Name { get; set; } = "";
+            public decimal Price { get; set; }
+
             private bool _isSelected;
             public bool IsSelected
             {
@@ -160,21 +140,6 @@ namespace MedSestriManipulations
             }
 
             public event PropertyChangedEventHandler? PropertyChanged;
-        }
-
-        private void OnClearClicked(object sender, EventArgs e)
-        {
-            FirstNameEntry.Text = string.Empty;
-            LastNameEntry.Text = string.Empty;
-            EGNEntry.Text = string.Empty;
-            PhoneEntry.Text = string.Empty;
-
-            foreach (var proc in Procedures)
-            {
-                proc.IsSelected = false;
-            }
-
-            UpdateTotal();
         }
     }
 }
