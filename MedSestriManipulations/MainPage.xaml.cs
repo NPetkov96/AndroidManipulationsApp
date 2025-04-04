@@ -76,10 +76,23 @@ namespace MedSestriManipulations
             string firstName = FirstNameEntry.Text?.Trim()!;
             string lastName = LastNameEntry.Text?.Trim()!;
             string egn = EGNEntry.Text?.Trim()!;
+            string phone = PhoneEntry.Text?.Trim()!;
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(egn))
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(egn) || string.IsNullOrWhiteSpace(phone))
             {
                 await DisplayAlert("Грешка", "Моля, попълни име, фамилия и ЕГН.", "OK");
+                return;
+            }
+
+            if (egn.Length != 10 || !egn.All(char.IsDigit))
+            {
+                await DisplayAlert("Грешка", "ЕГН трябва да съдържа точно 10 цифри.", "OK");
+                return;
+            }
+
+            if (phone.Length != 10 && phone.Length != 13)
+            {
+                await DisplayAlert("Грешка", "Телефонният номер трябва да съдържа 10 или 13 символа", "OK");
                 return;
             }
 
@@ -135,6 +148,7 @@ namespace MedSestriManipulations
             FirstNameEntry.Text = string.Empty;
             LastNameEntry.Text = string.Empty;
             EGNEntry.Text = string.Empty;
+            PhoneEntry.Text = string.Empty;
 
             foreach (var proc in Procedures)
             {
