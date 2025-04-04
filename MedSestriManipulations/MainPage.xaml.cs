@@ -25,7 +25,7 @@ namespace MedSestriManipulations
                 {
                     var procedure = new MedicalProcedureViewModel
                     {
-                        Name = parts[0],
+                        Name = $"{parts[0]} -",
                         Price = price,
                         IsSelected = false
                     };

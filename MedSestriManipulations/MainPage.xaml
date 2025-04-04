@@ -23,10 +23,10 @@
                         HeightRequest="400">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout Orientation="Horizontal" Padding="5">
+                    <StackLayout Orientation="Horizontal" Padding="0,5,0,0">
                         <CheckBox IsChecked="{Binding IsSelected}" />
-                        <Label Text="{Binding Name}" Margin="10,0,0,0"/>
-                        <Label Text="{Binding Price, StringFormat=' {0} лв'}" Margin="10,0,0,0"/>
+                        <Label Text="{Binding Name}" Margin="5,7,0,0" FontSize="20"/>
+                        <Label Text="{Binding Price, StringFormat=' {0} лв'}" Margin="0,7,0,0" FontSize="20"/>
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
