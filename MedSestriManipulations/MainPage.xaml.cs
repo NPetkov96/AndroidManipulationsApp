@@ -131,15 +131,6 @@ namespace MedSestriManipulations
                 await DisplayAlert("Грешка", $"Неуспешно изпращане: {ex.Message}", "OK");
             }
 
-            //try
-            //{
-            //    await Clipboard.SetTextAsync(message);
-            //    await DisplayAlert("Успешно", "Текстът е копиран. Постави го във Viber.", "OK");
-            //}
-            //catch
-            //{
-            //    await DisplayAlert("Грешка", "Неуспешно копиране. Увери се, че Viber е инсталиран.", "OK");
-            //}
         }
 
         private void OnClearClicked(object sender, EventArgs e)
