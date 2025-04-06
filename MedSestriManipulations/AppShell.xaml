@@ -5,7 +5,7 @@
     xmlns:local="clr-namespace:MedSestriManipulations">
 
     <ShellContent
-        Title="Манипулации"
+        Title="MedSestri"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 </Shell>
