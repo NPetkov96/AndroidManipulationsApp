@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
+
 namespace MedSestriManipulations
 {
     public partial class MainPage : ContentPage
@@ -15,16 +16,6 @@ namespace MedSestriManipulations
             FilterProcedures();
         }
 
-        private void LoadProcedures()
-        {
-            AllProcedures = MedicalProcedureService.GetAllProcedures();
-            foreach (var procedure in AllProcedures)
-            {
-                procedure.PropertyChanged += Procedure_PropertyChanged!;
-            }
-
-            FilterProcedures();
-        }
         private async void OnProcedureLabelTapped(object sender, EventArgs e)
         {
             if (sender is StackLayout layout &&
@@ -60,17 +51,16 @@ namespace MedSestriManipulations
             FilterProcedures();
         }
 
-        private void UpdateTotal()
-        {
-            var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
-            TotalLabel.Text = $"Общо: {total:F2} лв";
-        }
-
         private void OnProcedureCheckedChanged(object sender, CheckedChangedEventArgs e)
         {
             UpdateTotal();
         }
 
+        private void UpdateTotal()
+        {
+            var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
+            TotalLabel.Text = $"Общо: {total:F2} лв";
+        }
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
@@ -130,13 +120,26 @@ namespace MedSestriManipulations
 
             try
             {
-                await Clipboard.SetTextAsync(message);
-                await DisplayAlert("Успешно", "Текстът е копиран. Постави го във Viber.", "OK");
+                await Share.RequestAsync(new ShareTextRequest
+                {
+                    Text = message,
+                    Title = "Изпрати чрез Viber"
+                });
             }
-            catch
+            catch (Exception ex)
             {
-                await DisplayAlert("Грешка", "Неуспешно копиране. Увери се, че Viber е инсталиран.", "OK");
+                await DisplayAlert("Грешка", $"Неуспешно изпращане: {ex.Message}", "OK");
             }
+
+            //try
+            //{
+            //    await Clipboard.SetTextAsync(message);
+            //    await DisplayAlert("Успешно", "Текстът е копиран. Постави го във Viber.", "OK");
+            //}
+            //catch
+            //{
+            //    await DisplayAlert("Грешка", "Неуспешно копиране. Увери се, че Viber е инсталиран.", "OK");
+            //}
         }
 
         private void OnClearClicked(object sender, EventArgs e)
@@ -151,26 +154,15 @@ namespace MedSestriManipulations
             UpdateTotal();
         }
 
-        public class MedicalProcedureViewModel : INotifyPropertyChanged
+        private void LoadProcedures()
         {
-            public string Name { get; set; } = "";
-            public decimal Price { get; set; }
-
-            private bool _isSelected;
-            public bool IsSelected
+            AllProcedures = MedicalProcedureService.GetAllProcedures();
+            foreach (var procedure in AllProcedures)
             {
-                get => _isSelected;
-                set
-                {
-                    if (_isSelected != value)
-                    {
-                        _isSelected = value;
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
-                    }
-                }
+                procedure.PropertyChanged += Procedure_PropertyChanged!;
             }
 
-            public event PropertyChangedEventHandler? PropertyChanged;
+            FilterProcedures();
         }
     }
 }

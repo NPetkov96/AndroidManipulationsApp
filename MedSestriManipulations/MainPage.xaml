@@ -7,7 +7,7 @@
         <VerticalStackLayout Padding="20" Spacing="10">
 
             <HorizontalStackLayout>
-                <Button Text="Изпрати чрез Viber" Clicked="OnSendClicked" />
+                <Button Text="Изпрати" Clicked="OnSendClicked" />
                 <Button Text="Зачисти" Clicked="OnClearClicked" Margin="10,0,0,0" BackgroundColor="DarkRed"/>
             </HorizontalStackLayout>
 
