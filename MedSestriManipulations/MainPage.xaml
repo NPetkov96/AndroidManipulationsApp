@@ -4,18 +4,18 @@
 
 
     <ScrollView>
-        <VerticalStackLayout Padding="10" Spacing="10">
+        <VerticalStackLayout Padding="20" Spacing="10">
 
             <HorizontalStackLayout>
                 <Button Text="Изпрати чрез Viber" Clicked="OnSendClicked" />
                 <Button Text="Зачисти" Clicked="OnClearClicked" Margin="10,0,0,0" BackgroundColor="DarkRed"/>
             </HorizontalStackLayout>
 
-            <Label Text="Данни за пациент" FontSize="20"/>
-            <Entry x:Name="FirstNameEntry" Placeholder="Име" />
-            <Entry x:Name="LastNameEntry" Placeholder="Фамилия" />
-            <Entry x:Name="EGNEntry" Placeholder="ЕГН" Keyboard="Numeric" />
-            <Entry x:Name="PhoneEntry" Placeholder="Телефон" Keyboard="Telephone" />
+            <Label Text="Данни за пациент:" FontSize="20"/>
+            <Entry x:Name="CurrentName" Placeholder="Име" FontSize="25"/>
+            <Entry x:Name="EGNEntry" Placeholder="ЕГН" Keyboard="Numeric" FontSize="25"/>
+            <Entry x:Name="PhoneEntry" Placeholder="Телефон" Keyboard="Telephone" FontSize="25"/>
+            <Entry x:Name="UIN" Placeholder="Лекар УИН" Keyboard="Numeric" Text="" FontSize="25"/>
 
             <Label Text="Избери медицински манипулации" FontSize="20"/>
             <SearchBar x:Name="SearchBar" Placeholder="Търси манипулация..." TextChanged="OnSearchTextChanged"/>
@@ -26,15 +26,13 @@
                         <StackLayout Orientation="Horizontal" Padding="0,5,0,0">
                             <CheckBox IsChecked="{Binding IsSelected}" CheckedChanged="OnProcedureCheckedChanged"/>
 
-                            <!-- Обвиваме само името в StackLayout, за да закачим GestureRecognizer -->
                             <StackLayout Margin="5,7,0,0">
                                 <StackLayout.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnProcedureLabelTapped" />
                                 </StackLayout.GestureRecognizers>
                                 <Label Text="{Binding Name}" FontSize="20" />
                             </StackLayout>
-
-                            <Label Text="{Binding Price, StringFormat=' {0} лв'}" Margin="0,7,0,0" FontSize="20"/>
+                            <Label Text="{Binding Price, StringFormat=' {0:F2} лв'}" Margin="0,7,0,0" FontSize="20"/>
                         </StackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

@@ -77,14 +77,14 @@ namespace MedSestriManipulations
             var selected = AllProcedures.Where(p => p.IsSelected).ToList();
             var total = selected.Sum(p => p.Price);
 
-            string firstName = FirstNameEntry.Text?.Trim()!;
-            string lastName = LastNameEntry.Text?.Trim()!;
+            string name = CurrentName.Text?.Trim()!;
             string egn = EGNEntry.Text?.Trim()!;
             string phone = PhoneEntry.Text?.Trim()!;
+            string uin = UIN?.Text?.Trim() ?? string.Empty;
 
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(egn) || string.IsNullOrWhiteSpace(phone))
+            if (string.IsNullOrWhiteSpace(name)|| string.IsNullOrWhiteSpace(egn) || string.IsNullOrWhiteSpace(phone))
             {
-                await DisplayAlert("Грешка", "Моля, попълни име, фамилия и ЕГН.", "OK");
+                await DisplayAlert("Грешка", "Моля, попълни име, ЕГН, телефонен номер и УИН.", "OK");
                 return;
             }
 
@@ -100,10 +100,26 @@ namespace MedSestriManipulations
                 return;
             }
 
-            var message = $"Пациент: {firstName} {lastName}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
-                          $"Избрани манипулации:\n" +
-                          string.Join("\n", selected.Select(p => $"{p.Name} - {p.Price} лв")) +
-                          $"\n\nОбщо: {total} лв\nСума с отстъпка: {(total * 0.8m):F2} лв";
+            if (uin.Length != 10 && uin == null)
+            {
+                await DisplayAlert("Грешка", "УИН номерът трябва да съдържа точно 10 цифри.", "OK");
+                return;
+            }
+
+            if (uin == null)
+            {
+                uin = "";
+            }
+
+            string line = "-------------------------";
+            int counter = 1;
+            string website = "www.medsestri.com";
+            var message = $"Пациент: {name}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
+                          $"Избрани манипулации {selected.Count}бр:\n" +
+                          string.Join("\n", selected.Select(p => $"{counter++}.{p.Name} - {p.Price:F2} лв")) +
+                          //$"\nУИН:{uin}" +
+                          $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв"+
+                          $"\n{website}";
 
             try
             {
@@ -118,8 +134,7 @@ namespace MedSestriManipulations
 
         private void OnClearClicked(object sender, EventArgs e)
         {
-            FirstNameEntry.Text = "";
-            LastNameEntry.Text = "";
+            CurrentName.Text = "";
             EGNEntry.Text = "";
             PhoneEntry.Text = "";
 
