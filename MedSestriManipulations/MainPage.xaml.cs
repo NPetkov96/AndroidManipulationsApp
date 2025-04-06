@@ -82,7 +82,7 @@ namespace MedSestriManipulations
             string phone = PhoneEntry.Text?.Trim()!;
             string uin = UIN?.Text?.Trim() ?? string.Empty;
 
-            if (string.IsNullOrWhiteSpace(name)|| string.IsNullOrWhiteSpace(egn) || string.IsNullOrWhiteSpace(phone))
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(egn) || string.IsNullOrWhiteSpace(phone))
             {
                 await DisplayAlert("Грешка", "Моля, попълни име, ЕГН, телефонен номер и УИН.", "OK");
                 return;
@@ -100,26 +100,33 @@ namespace MedSestriManipulations
                 return;
             }
 
-            if (uin.Length != 10 && uin == null)
+            if (uin.Length != 10 && uin.Length != 0)
             {
                 await DisplayAlert("Грешка", "УИН номерът трябва да съдържа точно 10 цифри.", "OK");
                 return;
             }
 
-            if (uin == null)
-            {
-                uin = "";
-            }
-
             string line = "-------------------------";
             int counter = 1;
             string website = "www.medsestri.com";
-            var message = $"Пациент: {name}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
+            var message = string.Empty;
+            if (uin == string.Empty)
+            {
+                message = $"Пациент: {name}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
                           $"Избрани манипулации {selected.Count}бр:\n" +
                           string.Join("\n", selected.Select(p => $"{counter++}.{p.Name} - {p.Price:F2} лв")) +
-                          //$"\nУИН:{uin}" +
-                          $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв"+
+                          $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв" +
                           $"\n{website}";
+            }
+            else
+            {
+                message = $"Пациент: {name}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
+                              $"Избрани манипулации {selected.Count}бр:\n" +
+                              string.Join("\n", selected.Select(p => $"{counter++}.{p.Name} - {p.Price:F2} лв")) +
+                              $"\nУИН:{uin}" +
+                              $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв" +
+                              $"\n{website}";
+            }
 
             try
             {
