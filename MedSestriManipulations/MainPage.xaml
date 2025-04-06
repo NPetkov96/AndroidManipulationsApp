@@ -15,7 +15,7 @@
             <Entry x:Name="CurrentName" Placeholder="Име" FontSize="25"/>
             <Entry x:Name="EGNEntry" Placeholder="ЕГН" Keyboard="Numeric" FontSize="25"/>
             <Entry x:Name="PhoneEntry" Placeholder="Телефон" Keyboard="Telephone" FontSize="25"/>
-            <Entry x:Name="UIN" Placeholder="Лекар УИН" Keyboard="Numeric" Text="" FontSize="25"/>
+            <Entry x:Name="UIN" Placeholder="Лекар УИН" Keyboard="Numeric" FontSize="25"/>
 
             <Label Text="Избери медицински манипулации" FontSize="20"/>
             <SearchBar x:Name="SearchBar" Placeholder="Търси манипулация..." TextChanged="OnSearchTextChanged"/>
