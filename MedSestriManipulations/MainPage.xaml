@@ -21,9 +21,9 @@
 
             <!-- Изследвания -->
             <Grid ColumnDefinitions="Auto, *" HeightRequest="50" Padding="10,0">
-                <Label Text="Изследвания" FontSize="22" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="0"/>
+                <Label Text="Изследвания:" FontSize="18" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="0"/>
                 <!-- Общо -->
-                <Label x:Name="TotalLabel" Text="Общо: 0.00 лв" FontSize="22" FontAttributes="Bold" TextColor="#007BFF" VerticalOptions="Center" HorizontalOptions="End" Grid.Column="1"/>
+                <Label x:Name="TotalLabel" Text="0.00 лв" FontSize="18" FontAttributes="Bold" TextColor="#007BFF" VerticalOptions="Center" HorizontalOptions="Center" Grid.Column="1"/>
             </Grid>
             <Grid ColumnDefinitions="*, Auto" HeightRequest="50">
                 <SearchBar x:Name="SearchBar" Placeholder="Търси изследване..." TextChanged="OnSearchTextChanged" BackgroundColor="White"/>

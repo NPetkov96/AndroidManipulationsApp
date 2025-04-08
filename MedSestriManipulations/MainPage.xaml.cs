@@ -59,7 +59,7 @@ namespace MedSestriManipulations
         private void UpdateTotal()
         {
             var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
-            TotalLabel.Text = $"Общо: {total:F2} лв";
+            TotalLabel.Text = $"{total:F2} лв";
         }
 
         private async void OnSendClicked(object sender, EventArgs e)
