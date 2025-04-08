@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace MedSestriManipulations
+namespace MedSestriManipulations.Models
 {
     public class MedicalProcedureViewModel : INotifyPropertyChanged
     {

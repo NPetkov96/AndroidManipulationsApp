@@ -1,3 +1,5 @@
+using MedSestriManipulations.Models;
+using MedSestriManipulations.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
@@ -14,6 +16,7 @@ namespace MedSestriManipulations
             InitializeComponent();
             LoadProcedures();
             FilterProcedures();
+            HistoryService.InitializeAsync();
         }
 
         private async void OnProcedureLabelTapped(object sender, EventArgs e)
@@ -125,6 +128,18 @@ namespace MedSestriManipulations
                     Text = message,
                     Title = "Изпрати чрез Viber"
                 });
+
+                await HistoryService.AddAsync(new RequestHistoryEntry
+                {
+                    Name = name,
+                    EGN = egn,
+                    Phone = phone,
+                    UIN = uin,
+                    SelectedProcedures = selected,
+                    TotalPrice = total,
+                    Date = DateTime.Now
+                });
+
             }
             catch (Exception ex)
             {

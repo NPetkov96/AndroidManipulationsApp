@@ -1,6 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using MedSestriManipulations.Models;
+using System.Collections.ObjectModel;
 
-namespace MedSestriManipulations
+namespace MedSestriManipulations.Services
 {
     public static class MedicalProcedureService
     {
