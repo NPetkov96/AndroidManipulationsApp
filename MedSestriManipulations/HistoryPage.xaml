@@ -2,16 +2,61 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:MedSestriManipulations"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="MedSestriManipulations.HistoryPage"
-             Title="История на заявки">
+             Title="История">
 
 
     <ScrollView>
         <VerticalStackLayout Padding="10" Spacing="12">
+            <Label Text="Търси по:" FontAttributes="Bold" FontSize="14" TextColor="DarkGray" />
+
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" x:Name="SearchGrid">
+
+                <toolkit:Expander x:Name="ExpanderName" Grid.Column="0" Grid.ColumnSpan="1" 
+                  IsExpanded="{Binding IsNameExpanded, Mode=TwoWay}">
+                    <toolkit:Expander.Header>
+                        <Button Text="🔍 Име" />
+                    </toolkit:Expander.Header>
+                    <SearchBar Placeholder="Търси по име..."
+               FontSize="16"
+               TextChanged="OnSearchByNameChanged"
+               HorizontalOptions="FillAndExpand"
+                />
+                </toolkit:Expander>
+
+                <toolkit:Expander x:Name="ExpanderEGN" Grid.Column="1" Grid.ColumnSpan="1" 
+                  IsExpanded="{Binding IsEGNExpanded, Mode=TwoWay}">
+                    <toolkit:Expander.Header>
+                        <Button Text="🧾 ЕГН" />
+                    </toolkit:Expander.Header>
+                    <SearchBar Placeholder="Търси по ЕГН..."
+               FontSize="16"
+               TextChanged="OnSearchByEGNChanged"
+               HorizontalOptions="FillAndExpand"
+                />
+                </toolkit:Expander>
+
+                <toolkit:Expander x:Name="ExpanderPhone" Grid.Column="2" Grid.ColumnSpan="1" 
+                  IsExpanded="{Binding IsPhoneExpanded, Mode=TwoWay}">
+                    <toolkit:Expander.Header>
+                        <Button Text="📱 Тел." />
+                    </toolkit:Expander.Header>
+                    <SearchBar Placeholder="Търси по телефон..."
+               FontSize="16"
+               TextChanged="OnSearchByPhoneChanged"
+               HorizontalOptions="FillAndExpand"
+                />
+                </toolkit:Expander>
+
+            </Grid>
+
+
             <CollectionView x:Name="HistoryList" SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame BorderColor="LightGray" CornerRadius="12" Padding="10">
+
                             <VerticalStackLayout>
                                 <!-- Заглавие, кликваемо -->
                                 <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="DarkBlue">

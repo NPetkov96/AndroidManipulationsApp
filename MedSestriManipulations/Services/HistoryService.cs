@@ -23,6 +23,13 @@ namespace MedSestriManipulations.Services
             await HistoryStorageService.SaveAsync(recent);
         }
 
+        public static async Task<IEnumerable<RequestHistoryEntry>> GetHistoryItemsAsync()
+        {
+            // ако зареждаш от JSON файл или база
+            await Task.Delay(10); // симулация на async
+            return HistoryItems;
+        }
+
         public static async Task AddAsync(RequestHistoryEntry entry)
         {
             HistoryItems.Insert(0, entry);
