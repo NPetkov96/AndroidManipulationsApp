@@ -23,10 +23,9 @@ namespace MedSestriManipulations.Services
             // Презапиши файла без старите
             await HistoryStorageService.SaveAsync(loaded);
         }
-
-        public static IEnumerable<RequestHistoryEntry> GetHistoryItems()
+        public static async Task<IEnumerable<RequestHistoryEntry>> GetHistoryItemsAsync()
         {
-            return HistoryItems;
+            return await Task.Run(() => HistoryItems);
         }
 
         public static async Task AddAsync(RequestHistoryEntry entry)

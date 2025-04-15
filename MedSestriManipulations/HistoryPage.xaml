@@ -11,7 +11,7 @@
         <VerticalStackLayout Padding="10" Spacing="12">
             <Label Text="Търси по:" FontAttributes="Bold" FontSize="14" TextColor="DarkGray" />
 
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" x:Name="SearchGrid">
+            <!--<Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" x:Name="SearchGrid">
 
                 <toolkit:Expander x:Name="ExpanderName" Grid.Column="0" Grid.ColumnSpan="1" 
                   IsExpanded="{Binding IsNameExpanded, Mode=TwoWay}">
@@ -49,7 +49,7 @@
                 />
                 </toolkit:Expander>
 
-            </Grid>
+            </Grid>-->
 
 
             <CollectionView x:Name="HistoryList" SelectionMode="None">

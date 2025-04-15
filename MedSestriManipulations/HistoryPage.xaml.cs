@@ -23,65 +23,64 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
         InitializeComponent();
         BindingContext = this;
 
-        LoadHistory();
+        LoadHistoryAsync();
+        //LoadHistory();
 
 
         ToggleCommand = new Command<RequestHistoryEntry>(OnToggle);
         RemoveCommand = new Command<RequestHistoryEntry>(OnRemove);
         CopyCommand = new Command<RequestHistoryEntry>(OnCopy);
 
-
-        //HistoryList.ItemsSource = HistoryService.HistoryItems;
-        //_allItems = HistoryService.HistoryItems.ToList();
     }
 
-    public void LoadHistory()
+    private async Task LoadHistoryAsync()
     {
-        HistoryList.ItemsSource = HistoryService.HistoryItems;
+        HistoryList.ItemsSource = await HistoryService.GetHistoryItemsAsync();
     }
 
-    private void UpdateExpanderVisibility(string whichExpanded, bool isExpanded)
-    {
-        if (!isExpanded)
-        {
-            // Показваме всички и възстановяваме колоните
-            ExpanderName.IsVisible = true;
-            ExpanderEGN.IsVisible = true;
-            ExpanderPhone.IsVisible = true;
 
-            ExpanderName.SetValue(Grid.ColumnSpanProperty, 1);
-            ExpanderName.SetValue(Grid.ColumnProperty, 0);
+    //private void UpdateExpanderVisibility(string whichExpanded, bool isExpanded)
+    //{
+    //    if (!isExpanded)
+    //    {
+    //        // Показваме всички и възстановяваме колоните
+    //        //ExpanderName.IsVisible = true;
+    //        //ExpanderEGN.IsVisible = true;
+    //        //ExpanderPhone.IsVisible = true;
 
-            ExpanderEGN.SetValue(Grid.ColumnSpanProperty, 1);
-            ExpanderEGN.SetValue(Grid.ColumnProperty, 1);
+    //        //ExpanderName.SetValue(Grid.ColumnSpanProperty, 1);
+    //        //ExpanderName.SetValue(Grid.ColumnProperty, 0);
 
-            ExpanderPhone.SetValue(Grid.ColumnSpanProperty, 1);
-            ExpanderPhone.SetValue(Grid.ColumnProperty, 2);
+    //        //ExpanderEGN.SetValue(Grid.ColumnSpanProperty, 1);
+    //        //ExpanderEGN.SetValue(Grid.ColumnProperty, 1);
 
-            return;
-        }
+    //        //ExpanderPhone.SetValue(Grid.ColumnSpanProperty, 1);
+    //        //ExpanderPhone.SetValue(Grid.ColumnProperty, 2);
 
-        // Скриваме всички, освен избрания
-        ExpanderName.IsVisible = whichExpanded == "name";
-        ExpanderEGN.IsVisible = whichExpanded == "egn";
-        ExpanderPhone.IsVisible = whichExpanded == "phone";
+    //        return;
+    //    }
 
-        if (whichExpanded == "name")
-        {
-            ExpanderName.SetValue(Grid.ColumnSpanProperty, 3);
-            ExpanderName.SetValue(Grid.ColumnProperty, 0);
-        }
-        else if (whichExpanded == "egn")
-        {
-            ExpanderEGN.SetValue(Grid.ColumnSpanProperty, 3);
-            ExpanderEGN.SetValue(Grid.ColumnProperty, 0);
-        }
-        else if (whichExpanded == "phone")
-        {
-            ExpanderPhone.SetValue(Grid.ColumnSpanProperty, 3);
-            ExpanderPhone.SetValue(Grid.ColumnProperty, 0);
-        }
-    }
+    //    // Скриваме всички, освен избрания
+    //    ExpanderName.IsVisible = whichExpanded == "name";
+    //    //ExpanderEGN.IsVisible = whichExpanded == "egn";
+    //    //ExpanderPhone.IsVisible = whichExpanded == "phone";
+
+    //    if (whichExpanded == "name")
+    //    {
+    //        //ExpanderName.SetValue(Grid.ColumnSpanProperty, 3);
+    //        //ExpanderName.SetValue(Grid.ColumnProperty, 0);
+    //    }
+    //    else if (whichExpanded == "egn")
+    //    {
+    //        //ExpanderEGN.SetValue(Grid.ColumnSpanProperty, 3);
+    //        //ExpanderEGN.SetValue(Grid.ColumnProperty, 0);
+    //    }
+    //    else if (whichExpanded == "phone")
+    //    {
+    //        //ExpanderPhone.SetValue(Grid.ColumnSpanProperty, 3);
+    //        //ExpanderPhone.SetValue(Grid.ColumnProperty, 0);
+    //    }
+    //}
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
@@ -97,21 +96,21 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
             : _allItems.Where(x => x.Name.StartsWith(keyword, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
-    private void OnSearchByEGNChanged(object sender, TextChangedEventArgs e)
-    {
-        var keyword = e.NewTextValue?.Trim();
-        HistoryList.ItemsSource = string.IsNullOrWhiteSpace(keyword)
-            ? _allItems
-            : _allItems.Where(x => x.EGN.StartsWith(keyword)).ToList();
-    }
+    //private void OnSearchByEGNChanged(object sender, TextChangedEventArgs e)
+    //{
+    //    var keyword = e.NewTextValue?.Trim();
+    //    HistoryList.ItemsSource = string.IsNullOrWhiteSpace(keyword)
+    //        ? _allItems
+    //        : _allItems.Where(x => x.EGN.StartsWith(keyword)).ToList();
+    //}
 
-    private void OnSearchByPhoneChanged(object sender, TextChangedEventArgs e)
-    {
-        var keyword = e.NewTextValue?.Trim();
-        HistoryList.ItemsSource = string.IsNullOrWhiteSpace(keyword)
-            ? _allItems
-            : _allItems.Where(x => x.Phone.StartsWith(keyword)).ToList();
-    }
+    //private void OnSearchByPhoneChanged(object sender, TextChangedEventArgs e)
+    //{
+    //    var keyword = e.NewTextValue?.Trim();
+    //    HistoryList.ItemsSource = string.IsNullOrWhiteSpace(keyword)
+    //        ? _allItems
+    //        : _allItems.Where(x => x.Phone.StartsWith(keyword)).ToList();
+    //}
 
 
     private async void OnCopy(RequestHistoryEntry entry)
@@ -146,48 +145,48 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
         entry.IsExpanded = !entry.IsExpanded;
     }
 
-    public bool IsNameExpanded
-    {
-        get => _isNameExpanded;
-        set
-        {
-            if (_isNameExpanded != value)
-            {
-                _isNameExpanded = value;
-                OnPropertyChanged();
-                UpdateExpanderVisibility("name", value);
-            }
-        }
-    }
-    private bool _isNameExpanded;
+//    public bool IsNameExpanded
+//    {
+//        get => _isNameExpanded;
+//        set
+//        {
+//            if (_isNameExpanded != value)
+//            {
+//                _isNameExpanded = value;
+//                OnPropertyChanged();
+//                UpdateExpanderVisibility("name", value);
+//            }
+//        }
+//    }
+//    private bool _isNameExpanded;
 
-    public bool IsEGNExpanded
-    {
-        get => _isEGNExpanded;
-        set
-        {
-            if (_isEGNExpanded != value)
-            {
-                _isEGNExpanded = value;
-                OnPropertyChanged();
-                UpdateExpanderVisibility("egn", value);
-            }
-        }
-    }
-    private bool _isEGNExpanded;
+//    public bool IsEGNExpanded
+//    {
+//        get => _isEGNExpanded;
+//        set
+//        {
+//            if (_isEGNExpanded != value)
+//            {
+//                _isEGNExpanded = value;
+//                OnPropertyChanged();
+//                //UpdateExpanderVisibility("egn", value);
+//            }
+//        }
+//    }
+//    private bool _isEGNExpanded;
 
-    public bool IsPhoneExpanded
-    {
-        get => _isPhoneExpanded;
-        set
-        {
-            if (_isPhoneExpanded != value)
-            {
-                _isPhoneExpanded = value;
-                OnPropertyChanged();
-                UpdateExpanderVisibility("phone", value);
-            }
-        }
-    }
-    private bool _isPhoneExpanded;
+//    public bool IsPhoneExpanded
+//    {
+//        get => _isPhoneExpanded;
+//        set
+//        {
+//            if (_isPhoneExpanded != value)
+//            {
+//                _isPhoneExpanded = value;
+//                OnPropertyChanged();
+//                UpdateExpanderVisibility("phone", value);
+//            }
+//        }
+//    }
+//    private bool _isPhoneExpanded;
 }
