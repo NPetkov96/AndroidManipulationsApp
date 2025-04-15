@@ -10,23 +10,22 @@ namespace MedSestriManipulations.Services
         public static async Task InitializeAsync()
         {
             var loaded = await HistoryStorageService.LoadAsync();
+            loaded.OrderByDescending(e => e.Date).ToList();
 
-            // Филтрирай записите до последните 10 дни
-            var recent = loaded
-                .Where(e => e.Date >= DateTime.Now.AddDays(-10))
-                .OrderByDescending(e => e.Date)
-                .ToList();
+            //Филтрирай записите до последните 10 дни
+           var recent = loaded
+               .Where(e => e.Date >= DateTime.Now.AddDays(-10))
+               .OrderByDescending(e => e.Date)
+               .ToList();
 
             HistoryItems = new ObservableCollection<RequestHistoryEntry>(recent);
 
             // Презапиши файла без старите
-            await HistoryStorageService.SaveAsync(recent);
+            await HistoryStorageService.SaveAsync(loaded);
         }
 
-        public static async Task<IEnumerable<RequestHistoryEntry>> GetHistoryItemsAsync()
+        public static IEnumerable<RequestHistoryEntry> GetHistoryItems()
         {
-            // ако зареждаш от JSON файл или база
-            await Task.Delay(10); // симулация на async
             return HistoryItems;
         }
 
@@ -40,7 +39,7 @@ namespace MedSestriManipulations.Services
                 .OrderByDescending(e => e.Date)
                 .ToList();
 
-            // Обнови колекцията
+            //// Обнови колекцията
             HistoryItems.Clear();
             foreach (var e in recent)
                 HistoryItems.Add(e);

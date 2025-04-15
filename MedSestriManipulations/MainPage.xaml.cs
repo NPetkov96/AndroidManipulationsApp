@@ -1,7 +1,6 @@
 using MedSestriManipulations.Models;
 using MedSestriManipulations.Services;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 
 namespace MedSestriManipulations
@@ -10,59 +9,31 @@ namespace MedSestriManipulations
     {
         ObservableCollection<MedicalProcedureViewModel> AllProcedures = new();
         ObservableCollection<MedicalProcedureViewModel> Procedures = new();
+                private readonly PaginationState paginationState = new();
+
 
         public MainPage()
         {
             InitializeComponent();
-            LoadProcedures();
-            FilterProcedures();
-            HistoryService.InitializeAsync();
+            _ = InitAsync();
         }
 
-        private async void OnProcedureLabelTapped(object sender, EventArgs e)
+        private async void ShowMoreInfoForProvedure(object sender, EventArgs e)
         {
-            if (sender is StackLayout layout &&
-                layout.Children.FirstOrDefault() is Label label &&
-                label.Text is string text)
+            if (sender is StackLayout layout && layout.Children.FirstOrDefault() is Label label && label.Text is string text)
             {
                 await DisplayAlert("Пълна информация", text, "Затвори");
             }
         }
 
-        private void Procedure_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(MedicalProcedureViewModel.IsSelected))
-                UpdateTotal();
-        }
-
-        private void FilterProcedures()
-        {
-            var keyword = SearchBar.Text?.ToLower() ?? "";
-            Procedures.Clear();
-
-            foreach (var proc in AllProcedures)
-            {
-                if (proc.Name.ToLower().Contains(keyword))
-                    Procedures.Add(proc);
-            }
-
-            ProcedureList.ItemsSource = Procedures;
-        }
-
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
-            FilterProcedures();
+            _ = FilterProceduresAsync();
         }
 
         private void OnProcedureCheckedChanged(object sender, CheckedChangedEventArgs e)
         {
             UpdateTotal();
-        }
-
-        private void UpdateTotal()
-        {
-            var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
-            TotalLabel.Text = $"{total:F2} лв";
         }
 
         private async void OnSendClicked(object sender, EventArgs e)
@@ -102,7 +73,8 @@ namespace MedSestriManipulations
             string line = "-------------------------";
             int counter = 1;
             string website = "www.medsestri.com";
-            var message = string.Empty;
+            string message = string.Empty;
+
             if (uin == string.Empty)
             {
                 message = $"Пациент: {name}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
@@ -132,11 +104,12 @@ namespace MedSestriManipulations
                 await HistoryService.AddAsync(new RequestHistoryEntry
                 {
                     Name = name,
+                    Note = message,
                     EGN = egn,
                     Phone = phone,
-                    UIN = uin,
-                    SelectedProcedures = selected,
-                    TotalPrice = total,
+                    //UIN = uin,
+                    //SelectedProcedures = selected,
+                    //TotalPrice = total,
                     Date = DateTime.Now
                 });
 
@@ -163,12 +136,51 @@ namespace MedSestriManipulations
         private void LoadProcedures()
         {
             AllProcedures = MedicalProcedureService.GetAllProcedures();
-            foreach (var procedure in AllProcedures)
-            {
-                procedure.PropertyChanged += Procedure_PropertyChanged!;
-            }
+        }
 
-            FilterProcedures();
+        private async void OnLoadMore(object sender, EventArgs e)
+        {
+            await LoadMoreProceduresAsync();
+        }
+
+        private async Task FilterProceduresAsync()
+        {
+            Procedures.Clear();
+            paginationState.Reset();
+            await LoadMoreProceduresAsync();
+        }
+
+        private async Task LoadMoreProceduresAsync()
+        {
+            if (paginationState.IsLoading) return;
+            paginationState.IsLoading = true;
+
+            var keyword = SearchBar.Text?.ToLower() ?? "";
+            var matching = AllProcedures
+                .Where(p => p.Name.ToLower().Contains(keyword))
+                .Skip(paginationState.CurrentIndex)
+                .Take(paginationState.VisibleThreshold)
+                .ToList();
+
+            foreach (var item in matching)
+                Procedures.Add(item);
+
+            paginationState.CurrentIndex += matching.Count;
+            paginationState.IsLoading = false;
+        }
+
+        private void UpdateTotal()
+        {
+            var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
+            TotalLabel.Text = $"{total:F2} лв";
+        }
+
+        private async Task InitAsync()
+        {
+            LoadProcedures();
+            ProcedureList.ItemsSource = Procedures;
+            await FilterProceduresAsync();
+            await HistoryService.InitializeAsync();
         }
     }
 }

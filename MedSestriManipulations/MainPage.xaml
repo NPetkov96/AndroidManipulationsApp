@@ -31,7 +31,7 @@
 
 
             <!-- Списък с процедури -->
-            <CollectionView x:Name="ProcedureList" ItemsSource="{Binding Procedures}" HeightRequest="500" Margin="0,0,0,10">
+            <CollectionView x:Name="ProcedureList" ItemsSource="{Binding Procedures}" HeightRequest="500" Margin="0,0,0,10" RemainingItemsThreshold="1" RemainingItemsThresholdReached="OnLoadMore">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame Margin="0,5" CornerRadius="12" HasShadow="True" BackgroundColor="White">
@@ -40,7 +40,7 @@
 
                                 <StackLayout Margin="10,0" VerticalOptions="Center">
                                     <StackLayout.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnProcedureLabelTapped" />
+                                        <TapGestureRecognizer Tapped="ShowMoreInfoForProvedure" />
                                     </StackLayout.GestureRecognizers>
 
                                     <Label Text="{Binding Name}" FontSize="18" TextColor="Black" />

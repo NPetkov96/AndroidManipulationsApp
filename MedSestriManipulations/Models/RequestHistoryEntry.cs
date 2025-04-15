@@ -6,11 +6,9 @@ namespace MedSestriManipulations.Models
     public class RequestHistoryEntry : INotifyPropertyChanged
     {
         public string Name { get; set; } = "";
+        public string Note { get; set; } = "";
         public string EGN { get; set; } = "";
         public string Phone { get; set; } = "";
-        public string UIN { get; set; } = "";
-        public List<MedicalProcedureViewModel> SelectedProcedures { get; set; } = new();
-        public decimal TotalPrice { get; set; }
         public DateTime Date { get; set; }
 
         private bool isExpanded;

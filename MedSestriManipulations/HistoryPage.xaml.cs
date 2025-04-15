@@ -19,25 +19,25 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
 
     public HistoryPage()
     {
+
         InitializeComponent();
         BindingContext = this;
+
+        LoadHistory();
+
 
         ToggleCommand = new Command<RequestHistoryEntry>(OnToggle);
         RemoveCommand = new Command<RequestHistoryEntry>(OnRemove);
         CopyCommand = new Command<RequestHistoryEntry>(OnCopy);
-        LoadHistoryAsync(); // извикваме асинхронния метод
 
 
-        HistoryList.ItemsSource = HistoryService.HistoryItems;
-        _allItems = HistoryService.HistoryItems.ToList();
-
+        //HistoryList.ItemsSource = HistoryService.HistoryItems;
+        //_allItems = HistoryService.HistoryItems.ToList();
     }
 
-    private async void LoadHistoryAsync()
+    public void LoadHistory()
     {
-        var history = await HistoryService.GetHistoryItemsAsync(); // направи това async във HistoryService
-        _allItems = history.ToList();
-        HistoryList.ItemsSource = _allItems;
+        HistoryList.ItemsSource = HistoryService.HistoryItems;
     }
 
     private void UpdateExpanderVisibility(string whichExpanded, bool isExpanded)
@@ -116,23 +116,23 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
 
     private async void OnCopy(RequestHistoryEntry entry)
     {
-        if (entry.UIN == string.Empty)
-        {
-            entry.UIN = "няма";
-        }
+        //if (entry.UIN == string.Empty)
+        //{
+        //    entry.UIN = "няма";
+        //}
 
-        string website = "www.medsestri.com";
-        string line = "-------------------------";
-        var total = entry.SelectedProcedures.Sum(p => p.Price);
-        var counter = 1;
-        var message = $"Пациент: {entry.Name}\nЕГН: {entry.EGN}\nТелефон: {entry.Phone}\n\n" +
-                              $"Избрани манипулации {entry.SelectedProcedures.Count}бр:\n" +
-                              string.Join("\n", entry.SelectedProcedures.Select(p => $"{counter++}.{p.Name} - {p.Price:F2} лв")) +
-                              $"\nУИН:{entry.UIN}" +
-                              $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв" +
-                              $"\n{website}";
+        //string website = "www.medsestri.com";
+        //string line = "-------------------------";
+        //var total = entry.SelectedProcedures.Sum(p => p.Price);
+        //var counter = 1;
+        //var message = $"Пациент: {entry.Name}\nЕГН: {entry.EGN}\nТелефон: {entry.Phone}\n\n" +
+        //                      $"Избрани манипулации {entry.SelectedProcedures.Count}бр:\n" +
+        //                      string.Join("\n", entry.SelectedProcedures.Select(p => $"{counter++}.{p.Name} - {p.Price:F2} лв")) +
+        //                      $"\nУИН:{entry.UIN}" +
+        //                      $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв" +
+        //                      $"\n{website}";
 
-        await Clipboard.SetTextAsync(message);
+        await Clipboard.SetTextAsync(entry.Note);
     }
 
 
