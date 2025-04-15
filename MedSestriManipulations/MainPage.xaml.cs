@@ -1,6 +1,7 @@
 using MedSestriManipulations.Models;
 using MedSestriManipulations.Services;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 
 
 namespace MedSestriManipulations
@@ -9,26 +10,20 @@ namespace MedSestriManipulations
     {
         ObservableCollection<MedicalProcedureViewModel> AllProcedures = new();
         ObservableCollection<MedicalProcedureViewModel> Procedures = new();
-                private readonly PaginationState paginationState = new();
-
+        private readonly PaginationState paginationState = new();
 
         public MainPage()
         {
             InitializeComponent();
-            _ = InitAsync();
+            OnAppearing();
         }
 
-        private async void ShowMoreInfoForProvedure(object sender, EventArgs e)
+        private async void ShowMoreInfoForProcedure(object sender, EventArgs e)
         {
             if (sender is StackLayout layout && layout.Children.FirstOrDefault() is Label label && label.Text is string text)
             {
                 await DisplayAlert("Пълна информация", text, "Затвори");
             }
-        }
-
-        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
-        {
-            _ = FilterProceduresAsync();
         }
 
         private void OnProcedureCheckedChanged(object sender, CheckedChangedEventArgs e)
@@ -107,9 +102,6 @@ namespace MedSestriManipulations
                     Note = message,
                     EGN = egn,
                     Phone = phone,
-                    //UIN = uin,
-                    //SelectedProcedures = selected,
-                    //TotalPrice = total,
                     Date = DateTime.Now
                 });
 
@@ -133,20 +125,46 @@ namespace MedSestriManipulations
             UpdateTotal();
         }
 
-        private void LoadProcedures()
+        public static async Task<List<MedicalProcedureViewModel>> LoadProceduresAsync()
         {
-            AllProcedures = MedicalProcedureService.GetAllProcedures();
+            var fileName = "procedures.json";
+            var filePath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+
+            Stream stream;
+
+            if (!File.Exists(filePath))
+            {
+                stream = await FileSystem.OpenAppPackageFileAsync(fileName);
+            }
+            else
+            {
+                stream = File.OpenRead(filePath);
+            }
+
+            using (stream)
+            {
+                //return await JsonSerializer.DeserializeAsync<List<MedicalProcedureViewModel>>(stream);
+                var result = await JsonSerializer.DeserializeAsync<List<MedicalProcedureViewModel>>(stream);
+                return result ?? new List<MedicalProcedureViewModel>();
+            }
         }
+
 
         private async void OnLoadMore(object sender, EventArgs e)
         {
             await LoadMoreProceduresAsync();
         }
 
+        private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+        {
+            _ = FilterProceduresAsync();
+        }
+
         private async Task FilterProceduresAsync()
         {
             Procedures.Clear();
             paginationState.Reset();
+            await Task.Delay(150); // debounce
             await LoadMoreProceduresAsync();
         }
 
@@ -155,18 +173,26 @@ namespace MedSestriManipulations
             if (paginationState.IsLoading) return;
             paginationState.IsLoading = true;
 
-            var keyword = SearchBar.Text?.ToLower() ?? "";
-            var matching = AllProcedures
-                .Where(p => p.Name.ToLower().Contains(keyword))
-                .Skip(paginationState.CurrentIndex)
-                .Take(paginationState.VisibleThreshold)
-                .ToList();
+            var matching = await GetFilteredAsync();
 
-            foreach (var item in matching)
+
+            var toAdd = matching.Except(Procedures).ToList();
+            foreach (var item in toAdd)
                 Procedures.Add(item);
 
             paginationState.CurrentIndex += matching.Count;
             paginationState.IsLoading = false;
+        }
+
+        private async Task<List<MedicalProcedureViewModel>> GetFilteredAsync()
+        {
+            var keyword = SearchBar.Text?.ToLower() ?? "";
+            return await Task.Run(() =>
+                AllProcedures
+                    .Where(p => p.Name.ToLower().Contains(keyword))
+                    .Skip(paginationState.CurrentIndex)
+                    .Take(paginationState.VisibleThreshold)
+                    .ToList());
         }
 
         private void UpdateTotal()
@@ -175,12 +201,24 @@ namespace MedSestriManipulations
             TotalLabel.Text = $"{total:F2} лв";
         }
 
-        private async Task InitAsync()
+        protected override async void OnAppearing()
         {
-            LoadProcedures();
+            base.OnAppearing();
+            if (AllProcedures.Count == 0)
+            {
+                await LoadAsyncIfNeeded();
+            }
+        }
+
+        private async Task LoadAsyncIfNeeded()
+        {
+            var data = await LoadProceduresAsync();
+            AllProcedures = new ObservableCollection<MedicalProcedureViewModel>(data);
+
             ProcedureList.ItemsSource = Procedures;
-            await FilterProceduresAsync();
-            await HistoryService.InitializeAsync();
+            await Task.WhenAll(
+                FilterProceduresAsync(),
+                HistoryService.InitializeAsync());
         }
     }
 }
