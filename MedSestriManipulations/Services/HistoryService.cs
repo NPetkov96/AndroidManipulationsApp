@@ -52,6 +52,39 @@ namespace MedSestriManipulations.Services
             HistoryItems.Remove(entry);
             await HistoryStorageService.SaveAsync(HistoryItems.ToList());
         }
+
+        public static async Task<List<string>> GetAllPreviousNamesAsync()
+        {
+            var history = await GetHistoryItemsAsync();
+            return history
+                .Select(h => h.Name.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+        }
+
+        public static async Task<List<string>> GetAllPreviousEGNAsync()
+        {
+            var history = await GetHistoryItemsAsync();
+            return history
+                .Select(h => h.EGN.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+        }
+
+        public static async Task<List<string>> GetAllPreviousPhonesAsync()
+        {
+            var history = await GetHistoryItemsAsync();
+            return history
+                .Select(h => h.Phone.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(n => n)
+                .ToList();
+        }
     }
 
 }

@@ -10,11 +10,20 @@ namespace MedSestriManipulations
     {
         ObservableCollection<MedicalProcedureViewModel> AllProcedures = new();
         ObservableCollection<MedicalProcedureViewModel> Procedures = new();
+        public ObservableCollection<string> NameSuggestions { get; set; } = new();
+        private List<string> AllNames = new();
+        public ObservableCollection<string> EGNSuggestions { get; set; } = new();
+        private List<string> AllEgn = new();
+
+        public ObservableCollection<string> PhoneSuggestions { get; set; } = new();
+        private List<string> AllPhones = new();
+
         private readonly PaginationState paginationState = new();
 
         public MainPage()
         {
             InitializeComponent();
+            BindingContext = this;
             OnAppearing();
         }
 
@@ -29,6 +38,132 @@ namespace MedSestriManipulations
         private void OnProcedureCheckedChanged(object sender, CheckedChangedEventArgs e)
         {
             UpdateTotal();
+        }
+
+        private void AutoCompleteText(object sender, TextChangedEventArgs e)
+        {
+            if (sender is not Entry entry) return;
+
+            var keyword = e.NewTextValue?.Trim().ToLower();
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                if (entry == CurrentName)
+                {
+                    NameSuggestions.Clear();
+                    AutoCompleteSuggestionsViewVisibility(false, entry);
+                }
+                else if (entry == EGNEntry)
+                {
+                    EGNSuggestions.Clear();
+                    AutoCompleteSuggestionsViewVisibility(false, entry);
+                }
+                else if (entry == PhoneEntry)
+                {
+                    PhoneSuggestions.Clear();
+                    AutoCompleteSuggestionsViewVisibility(false, entry);
+                }
+                return;
+            }
+
+            switch (entry)
+            {
+                case var _ when entry == CurrentName:
+                    {
+                        var matches = AllNames
+                            .Where(n => n.ToLower().StartsWith(keyword))
+                            .Take(5)
+                            .ToList();
+
+                        NameSuggestions.Clear();
+                        foreach (var match in matches)
+                            NameSuggestions.Add(match);
+
+                        AutoCompleteSuggestionsViewVisibility(matches.Any(), entry);
+                        break;
+                    }
+
+                case var _ when entry == EGNEntry:
+                    {
+                        var matches = AllEgn
+                            .Where(n => n.StartsWith(keyword))
+                            .Take(5)
+                            .ToList();
+
+                        EGNSuggestions.Clear();
+                        foreach (var match in matches)
+                            EGNSuggestions.Add(match);
+
+                        AutoCompleteSuggestionsViewVisibility(matches.Any(), entry);
+                        break;
+                    }
+
+                case var _ when entry == PhoneEntry:
+                    {
+                        var matches = AllPhones
+                            .Where(n => n.StartsWith(keyword))
+                            .Take(5)
+                            .ToList();
+                        PhoneSuggestions.Clear();
+                        foreach (var match in matches)
+                            PhoneSuggestions.Add(match);
+                        AutoCompleteSuggestionsViewVisibility(matches.Any(), entry);
+                        break;
+                    }
+            }
+
+        }
+
+        private void AutoCompleteSuggestionsViewVisibility(bool show, VisualElement sender)
+        {
+            switch (sender)
+            {
+                case var _ when sender == CurrentName:
+                    NameSuggestionsListView.IsVisible = show;
+                    break;
+
+                case var _ when sender == EGNEntry:
+                    EGNSuggestionsListView.IsVisible = show;
+                    break;
+                case var _ when sender == PhoneEntry:
+                    PhoneSuggestionsListView.IsVisible = show;
+                    break;
+            }
+
+        }
+
+        private void AutoCompleteSuggestionTapped(object sender, ItemTappedEventArgs e)
+        {
+            if (e.Item is not string selectedValue) return;
+
+            switch (sender)
+            {
+                case var _ when sender == NameSuggestionsListView:
+                    CurrentName.Text = selectedValue;
+                    if (NameSuggestionsListView != null && NameSuggestionsListView.Handler != null)
+                    {
+                        NameSuggestions.Clear();
+                        NameSuggestionsListView.IsVisible = false;
+                    }
+                    break;
+
+                case var _ when sender == EGNSuggestionsListView:
+                    EGNEntry.Text = selectedValue;
+                    if (EGNSuggestionsListView != null && EGNSuggestionsListView.Handler != null)
+                    {
+                        EGNSuggestions.Clear();
+                        EGNSuggestionsListView.IsVisible = false;
+                    }
+                    break;
+                case var _ when sender == PhoneSuggestionsListView:
+                    PhoneEntry.Text = selectedValue;
+                    if (PhoneSuggestionsListView != null && PhoneSuggestionsListView.Handler != null)
+                    {
+                        PhoneSuggestions.Clear();
+                        PhoneSuggestionsListView.IsVisible = false;
+                    }
+                    break;
+            }
+
         }
 
         private async void OnSendClicked(object sender, EventArgs e)
@@ -143,12 +278,10 @@ namespace MedSestriManipulations
 
             using (stream)
             {
-                //return await JsonSerializer.DeserializeAsync<List<MedicalProcedureViewModel>>(stream);
                 var result = await JsonSerializer.DeserializeAsync<List<MedicalProcedureViewModel>>(stream);
                 return result ?? new List<MedicalProcedureViewModel>();
             }
         }
-
 
         private async void OnLoadMore(object sender, EventArgs e)
         {
@@ -164,7 +297,7 @@ namespace MedSestriManipulations
         {
             Procedures.Clear();
             paginationState.Reset();
-            await Task.Delay(150); // debounce
+            await Task.Delay(150);
             await LoadMoreProceduresAsync();
         }
 
@@ -173,7 +306,7 @@ namespace MedSestriManipulations
             if (paginationState.IsLoading) return;
             paginationState.IsLoading = true;
 
-            var matching = await GetFilteredAsync();
+            var matching = await GetFilteredProvedureAsync();
 
 
             var toAdd = matching.Except(Procedures).ToList();
@@ -184,7 +317,7 @@ namespace MedSestriManipulations
             paginationState.IsLoading = false;
         }
 
-        private async Task<List<MedicalProcedureViewModel>> GetFilteredAsync()
+        private async Task<List<MedicalProcedureViewModel>> GetFilteredProvedureAsync()
         {
             var keyword = SearchBar.Text?.ToLower() ?? "";
             return await Task.Run(() =>
@@ -207,6 +340,13 @@ namespace MedSestriManipulations
             if (AllProcedures.Count == 0)
             {
                 await LoadAsyncIfNeeded();
+            }
+
+            if (AllNames.Count == 0 || AllEgn.Count == 0 || AllPhones.Count == 0)
+            {
+                AllNames = await HistoryService.GetAllPreviousNamesAsync();
+                AllEgn = await HistoryService.GetAllPreviousEGNAsync();
+                AllPhones = await HistoryService.GetAllPreviousPhonesAsync();
             }
         }
 
