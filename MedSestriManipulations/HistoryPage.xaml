@@ -6,7 +6,6 @@
              x:Class="MedSestriManipulations.HistoryPage"
              Title="История">
 
-
     <ScrollView>
         <VerticalStackLayout Padding="10" Spacing="12">
             <Label Text="Търси по:" FontAttributes="Bold" FontSize="14" TextColor="DarkGray" />

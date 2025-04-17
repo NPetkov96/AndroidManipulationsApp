@@ -4,17 +4,27 @@
              BackgroundColor="#F2F4F7">
 
     <ScrollView>
-        <VerticalStackLayout Padding="5" Spacing="15">
+        <VerticalStackLayout Padding="10" Spacing="5">
 
             <!-- Бутоните -->
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
-                <Button Text="Изпрати" Clicked="OnSendClicked" BackgroundColor="#007BFF" TextColor="White" CornerRadius="10" Padding="15,10" />
-                <Button Text="Зачисти" Clicked="OnClearClicked" BackgroundColor="DarkRed" TextColor="White" CornerRadius="10" Padding="15,10"/>
+                <Button Text="Изпрати" Clicked="OnSendClicked" BackgroundColor="#007BFF" TextColor="White" CornerRadius="20" Padding="40,10" FontAttributes="Bold">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="-10,5" Radius="10" Opacity="0.5" />
+                    </Button.Shadow>
+                </Button>
+                <Button Text="Зачисти" Clicked="OnSendClicked" BackgroundColor="DarkRed" TextColor="White" CornerRadius="20" Padding="40,10" FontAttributes="Bold">
+                    <Button.Shadow>
+                        <Shadow Brush="Black" Offset="10,5" Radius="10" Opacity="0.5" />
+                    </Button.Shadow>
+                </Button>
             </HorizontalStackLayout>
 
             <!-- Полета за данни -->
-            <Label Text="Данни за пациент:" FontSize="22" FontAttributes="Bold"/>
-            <Entry x:Name="CurrentName" Placeholder="Име" FontSize="20" BackgroundColor="White" TextChanged="AutoCompleteText"/>
+            <Label Text="Данни за пациент:" FontSize="24" FontAttributes="Bold"/>
+            <Border Stroke="#CCCCCC" StrokeThickness="1" BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="10,5">
+                <Entry x:Name="CurrentName" Placeholder="Име" FontSize="18" BackgroundColor="Transparent" TextColor="#000" HeightRequest="45" TextChanged="AutoCompleteText"/>
+            </Border>
             <ListView x:Name="NameSuggestionsListView" ItemsSource="{Binding NameSuggestions}" ItemTapped="AutoCompleteSuggestionTapped" IsVisible="False" HeightRequest="140" BackgroundColor="White" RowHeight="35">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -23,7 +33,9 @@
                 </ListView.ItemTemplate>
             </ListView>
 
-            <Entry x:Name="EGNEntry" Placeholder="ЕГН" Keyboard="Numeric" FontSize="20" BackgroundColor="White" TextChanged="AutoCompleteText"/>
+            <Border Stroke="#CCCCCC" StrokeThickness="1" BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="10,5">
+                <Entry x:Name="EGNEntry" Placeholder="ЕГН" Keyboard="Numeric" FontSize="18" BackgroundColor="Transparent" TextColor="#000" HeightRequest="45" TextChanged="AutoCompleteText"/>
+            </Border>
             <ListView x:Name="EGNSuggestionsListView" ItemsSource="{Binding EGNSuggestions}" ItemTapped="AutoCompleteSuggestionTapped" IsVisible="False" HeightRequest="140" BackgroundColor="White" RowHeight="35">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -32,7 +44,9 @@
                 </ListView.ItemTemplate>
             </ListView>
 
-            <Entry x:Name="PhoneEntry" Placeholder="Телефон" Keyboard="Telephone" FontSize="20" BackgroundColor="White" TextChanged="AutoCompleteText"/>
+            <Border Stroke="#CCCCCC" StrokeThickness="1" BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="10,5">
+                <Entry x:Name="PhoneEntry" Placeholder="Телефон" Keyboard="Telephone" FontSize="18" BackgroundColor="Transparent" TextColor="#000" HeightRequest="45" TextChanged="AutoCompleteText"/>
+            </Border>
             <ListView x:Name="PhoneSuggestionsListView" ItemsSource="{Binding PhoneSuggestions}" ItemTapped="AutoCompleteSuggestionTapped" IsVisible="False" HeightRequest="140" BackgroundColor="White" RowHeight="35">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -40,9 +54,10 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            
-            <Entry x:Name="UIN" Placeholder="Лекар УИН" Keyboard="Numeric" FontSize="20" BackgroundColor="White"/>
 
+            <Border Stroke="#CCCCCC" StrokeThickness="1" BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="10,5">
+                <Entry x:Name="UIN" Placeholder="Лекар УИН" Keyboard="Numeric" FontSize="18" BackgroundColor="Transparent" TextColor="#000" HeightRequest="45"/>
+            </Border>
             <!-- Изследвания -->
             <Grid ColumnDefinitions="Auto, *" HeightRequest="50" Padding="10,0">
                 <Label Text="Изследвания:" FontSize="18" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="0"/>

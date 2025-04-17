@@ -65,6 +65,10 @@
 		</MauiAsset>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Resources\Images\" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<AndroidLinkMode>None</AndroidLinkMode>
 	</PropertyGroup>
