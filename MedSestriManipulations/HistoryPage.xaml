@@ -3,65 +3,76 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:MedSestriManipulations"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="MedSestriManipulations.HistoryPage"
-             Title="История">
+             xmlns:services="clr-namespace:MedSestriManipulations.Services"
+             BackgroundColor="#dfe9f5"
+             x:Class="MedSestriManipulations.HistoryPage">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="10" Spacing="12">
-            <Label Text="Търси по:" FontAttributes="Bold" FontSize="14" TextColor="DarkGray" />
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" x:Name="SearchGrid">
 
-                <toolkit:Expander x:Name="ExpanderName" Grid.Column="0" Grid.ColumnSpan="1" IsExpanded="{Binding IsNameExpanded, Mode=TwoWay}">
-                    <toolkit:Expander.Header>
-                        <Button Text="🔍 Име" />
-                    </toolkit:Expander.Header>
-                    <SearchBar Placeholder="Търси по име..." FontSize="16" TextChanged="OnSearchByNameChanged" />
-                </toolkit:Expander>
 
-                <toolkit:Expander x:Name="ExpanderEGN" Grid.Column="1" Grid.ColumnSpan="1" 
+    <AbsoluteLayout>
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="10" Spacing="10" >
+                <Label Text="Търси по:" FontAttributes="Bold" FontSize="14" TextColor="DarkGray" />
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" x:Name="SearchGrid">
+
+                    <toolkit:Expander x:Name="ExpanderName" Grid.Column="0" Grid.ColumnSpan="1" IsExpanded="{Binding IsNameExpanded, Mode=TwoWay}">
+                        <toolkit:Expander.Header>
+                            <Button Text="🔍 Име" />
+                        </toolkit:Expander.Header>
+                        <SearchBar Placeholder="Търси по име..." FontSize="16" TextChanged="OnSearchByNameChanged" />
+                    </toolkit:Expander>
+
+                    <toolkit:Expander x:Name="ExpanderEGN" Grid.Column="1" Grid.ColumnSpan="1" 
                   IsExpanded="{Binding IsEGNExpanded, Mode=TwoWay}">
-                    <toolkit:Expander.Header>
-                        <Button Text="🧾 ЕГН" />
-                    </toolkit:Expander.Header>
-                    <SearchBar Placeholder="Търси по ЕГН..." FontSize="16" TextChanged="OnSearchByEGNChanged"/>
-                </toolkit:Expander>
+                        <toolkit:Expander.Header>
+                            <Button Text="🧾 ЕГН" />
+                        </toolkit:Expander.Header>
+                        <SearchBar Placeholder="Търси по ЕГН..." FontSize="16" TextChanged="OnSearchByEGNChanged"/>
+                    </toolkit:Expander>
 
-                <toolkit:Expander x:Name="ExpanderPhone" Grid.Column="2" Grid.ColumnSpan="1" 
+                    <toolkit:Expander x:Name="ExpanderPhone" Grid.Column="2" Grid.ColumnSpan="1" 
                   IsExpanded="{Binding IsPhoneExpanded, Mode=TwoWay}">
-                    <toolkit:Expander.Header>
-                        <Button Text="📱 Тел." />
-                    </toolkit:Expander.Header>
-                    <SearchBar Placeholder="Търси по телефон..." FontSize="16" TextChanged="OnSearchByPhoneChanged"/>
-                </toolkit:Expander>
-            </Grid>
+                        <toolkit:Expander.Header>
+                            <Button Text="📱 Тел." />
+                        </toolkit:Expander.Header>
+                        <SearchBar Placeholder="Търси по телефон..." FontSize="16" TextChanged="OnSearchByPhoneChanged" BackgroundColor="White"/>
+                    </toolkit:Expander>
+                </Grid>
 
-            <CollectionView x:Name="HistoryList" SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border Stroke="LightGray" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="10">
-                            <VerticalStackLayout>
+                <CollectionView x:Name="HistoryList" SelectionMode="None" BackgroundColor="#dfe9f5">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="#dfe9f5" StrokeThickness="0" StrokeShape="RoundRectangle 15" Padding="10" Margin="5" BackgroundColor="#cbdbeb">
+                                <VerticalStackLayout>
 
-                                <!-- Заглавие, кликваемо -->
-                                <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="DarkBlue">
-                                    <Label.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.ToggleCommand}"
+                                    <!-- Заглавие, кликваемо -->
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="DarkBlue">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.ToggleCommand}"
                                           CommandParameter="{Binding .}" />
-                                    </Label.GestureRecognizers>
-                                </Label>
+                                        </Label.GestureRecognizers>
+                                    </Label>
 
-                                <!-- Подробности — видими само ако IsExpanded е true -->
-                                <StackLayout x:Name="DetailsSection" IsVisible="{Binding IsExpanded}" ClassId="DetailsSection">
-                                    <Label Text="{Binding Date, StringFormat='Дата: {0:dd.MM.yyyy HH:mm}'}" />
-                                    <Label Text="{Binding Note}" />
-                                    <Button Text="🗑 Изтрий" FontSize="12" BackgroundColor="Red" TextColor="White" Margin="0,10,0,0" Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.RemoveCommand}" CommandParameter="{Binding .}" />
-                                    <Button Text="📋 Копирай" FontSize="10" BackgroundColor="LightGray" TextColor="Black" Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.CopyCommand}" CommandParameter="{Binding .}" />
-                                </StackLayout>
+                                    <!-- Подробности — видими само ако IsExpanded е true -->
+                                    <StackLayout x:Name="DetailsSection" IsVisible="{Binding IsExpanded}" ClassId="DetailsSection">
+                                        <Label Text="{Binding Date, StringFormat='Дата: {0:dd.MM.yyyy HH:mm}'}" />
+                                        <Label Text="{Binding Note}" />
+                                        <Button Text="🗑 Изтрий" FontSize="12" BackgroundColor="Red" TextColor="White" Margin="0,10,0,0" Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.RemoveCommand}" CommandParameter="{Binding .}" />
+                                        <Button Text="📋 Копирай" FontSize="10" BackgroundColor="LightGray" TextColor="Black" Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.CopyCommand}" CommandParameter="{Binding .}" />
+                                    </StackLayout>
 
-                            </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        
+        <!-- Плаващ бутон Начало -->
+        <Frame CornerRadius="35" HeightRequest="70" WidthRequest="70" Padding="0" HasShadow="True" AbsoluteLayout.LayoutBounds="0.96,0.98,60,60" AbsoluteLayout.LayoutFlags="PositionProportional">
+            <ImageButton Source="home.png" Command="{x:Static services:NavigationService.NavigateToHomeCommand}" BackgroundColor="Transparent" WidthRequest="70" HeightRequest="70" HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Frame>
+
+    </AbsoluteLayout>
 </ContentPage>

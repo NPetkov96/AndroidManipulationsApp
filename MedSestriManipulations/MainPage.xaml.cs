@@ -337,6 +337,7 @@ namespace MedSestriManipulations
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            //Shell.SetNavBarIsVisible(this, false);
             if (AllProcedures.Count == 0)
             {
                 await LoadAsyncIfNeeded();
