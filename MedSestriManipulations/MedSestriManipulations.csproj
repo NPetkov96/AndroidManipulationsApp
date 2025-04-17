@@ -30,11 +30,10 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\play_store_512.png" ForegroundFile="Resources\AppIcon\play_store_512.png" Color="#007BFF" />
-		<!--<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#007BFF" />-->
+		<MauiIcon Include="Resources\AppIcon\medsestr_icon.png" ForegroundFile="Resources\AppIcon\medsestr_icon.png" Color="#2196F3" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\bluelogo.png" Color="#007BFF" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\medsestri_splashscreen.png" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -49,21 +48,21 @@
 
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="11.2.0" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.50" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />
-		<PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />		
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.60" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
+		<PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="HistoryPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="HistoryPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiAsset Update="Resources\Raw\procedures.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </MauiAsset>
+		<MauiAsset Update="Resources\Raw\procedures.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</MauiAsset>
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -71,21 +70,22 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
-	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
+		<AndroidKeyStore>False</AndroidKeyStore>
+		<EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
-	  <AndroidKeyStore>False</AndroidKeyStore>
-	</PropertyGroup>
-	
-	<PropertyGroup>
+	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
+		<AndroidKeyStore>False</AndroidKeyStore>
+	</PropertyGroup>-->
+
+	<!--<PropertyGroup>
 		<PublishTrimmed>false</PublishTrimmed>
 		<EnableLinking>false</EnableLinking>
-		<!-- само за тест, после върни на true -->
-	</PropertyGroup>
+		--><!-- само за тест, после върни на true --><!--
+	</PropertyGroup>-->
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<RunAOTCompilation>false</RunAOTCompilation>
 	</PropertyGroup>
+
 </Project>

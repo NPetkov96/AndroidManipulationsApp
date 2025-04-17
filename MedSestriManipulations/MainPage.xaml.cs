@@ -24,7 +24,7 @@ namespace MedSestriManipulations
         {
             InitializeComponent();
             BindingContext = this;
-            OnAppearing();
+            //OnAppearing();
         }
 
         private async void ShowMoreInfoForProcedure(object sender, EventArgs e)
