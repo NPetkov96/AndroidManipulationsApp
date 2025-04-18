@@ -38,7 +38,6 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
         _allItems = items.ToList(); 
     }
 
-
     private void UpdateExpanderVisibility(string whichExpanded, bool isExpanded)
     {
         if (!isExpanded)
@@ -90,7 +89,6 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-
     private void OnSearchByNameChanged(object sender, TextChangedEventArgs e)
     {
         var keyword = e.NewTextValue?.Trim();
@@ -115,12 +113,10 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
             : _allItems.Where(x => x.Phone.StartsWith(keyword)).ToList();
     }
 
-
     private async Task OnCopy(RequestHistoryEntry entry)
     {
         await Clipboard.SetTextAsync(entry.Note);
     }
-
 
     private async Task OnRemove(RequestHistoryEntry entry)
     {
