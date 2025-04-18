@@ -1,6 +1,7 @@
 using MedSestriManipulations.Models;
 using MedSestriManipulations.Services;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Text.Json;
 
 
@@ -24,7 +25,22 @@ namespace MedSestriManipulations
         {
             InitializeComponent();
             BindingContext = this;
-            //OnAppearing();
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            if (AllProcedures.Count == 0)
+            {
+                await LoadAsyncIfNeeded();
+            }
+
+            if (AllNames.Count == 0 || AllEgn.Count == 0 || AllPhones.Count == 0)
+            {
+                AllNames = await HistoryService.GetAllPreviousNamesAsync();
+                AllEgn = await HistoryService.GetAllPreviousEGNAsync();
+                AllPhones = await HistoryService.GetAllPreviousPhonesAsync();
+            }
         }
 
         private async void ShowMoreInfoForProcedure(object sender, EventArgs e)
@@ -37,7 +53,7 @@ namespace MedSestriManipulations
 
         private void OnProcedureCheckedChanged(object sender, CheckedChangedEventArgs e)
         {
-            UpdateTotal();
+            UpdateTotalSum();
         }
 
         private void AutoCompleteText(object sender, TextChangedEventArgs e)
@@ -178,7 +194,7 @@ namespace MedSestriManipulations
 
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(egn) || string.IsNullOrWhiteSpace(phone))
             {
-                await DisplayAlert("Грешка", "Моля, попълни име, ЕГН, телефонен номер и УИН.", "OK");
+                await DisplayAlert("Грешка", "Моля, попълни Име, ЕГН и телефонен номер.", "OK");
                 return;
             }
 
@@ -190,7 +206,7 @@ namespace MedSestriManipulations
 
             if (phone.Length != 10 && phone.Length != 13)
             {
-                await DisplayAlert("Грешка", "Телефонният номер трябва да съдържа 10 или 13 символа", "OK");
+                await DisplayAlert("Грешка", "Телефонният номер трябва да съдържа точно 10 или 13 символа", "OK");
                 return;
             }
 
@@ -200,28 +216,31 @@ namespace MedSestriManipulations
                 return;
             }
 
-            string line = "-------------------------";
-            int counter = 1;
+            string line = "--------------------";
             string website = "www.medsestri.com";
-            string message = string.Empty;
+            decimal discountTotal = total * 0.8m;
 
-            if (uin == string.Empty)
-            {
-                message = $"Пациент: {name}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
-                          $"Избрани манипулации {selected.Count}бр:\n" +
-                          string.Join("\n", selected.Select(p => $"{counter++}.{p.Name} - {p.Price:F2} лв")) +
-                          $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв" +
-                          $"\n{website}";
-            }
-            else
-            {
-                message = $"Пациент: {name}\nЕГН: {egn}\nТелефон: {phone}\n\n" +
-                              $"Избрани манипулации {selected.Count}бр:\n" +
-                              string.Join("\n", selected.Select(p => $"{counter++}.{p.Name} - {p.Price:F2} лв")) +
-                              $"\nУИН:{uin}" +
-                              $"\n\nОбщо сума: {total:F2} лв\n{line} \nСума с отстъпка: {(total * 0.8m):F2} лв" +
-                              $"\n{website}";
-            }
+
+            var manipulationsList = string.Join("\n", selected.Select((p, index) => $"{index + 1}. {p.Name} - {p.Price:F2} лв"));
+
+            var messageBuilder = new StringBuilder();
+            messageBuilder.AppendLine($"Пациент: {name}");
+            messageBuilder.AppendLine($"ЕГН: {egn}");
+            messageBuilder.AppendLine($"Телефон: {phone}");
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine($"Избрани манипулации {selected.Count} бр:");
+            messageBuilder.AppendLine(manipulationsList);
+
+            if (!string.IsNullOrEmpty(uin))
+                messageBuilder.AppendLine($"УИН: {uin}");
+
+            messageBuilder.AppendLine();
+            messageBuilder.AppendLine($"Общо сума: {total:F2} лв");
+            messageBuilder.AppendLine(line);
+            messageBuilder.AppendLine($"Сума с отстъпка: {discountTotal:F2} лв");
+            messageBuilder.AppendLine(website);
+
+            string message = messageBuilder.ToString().Trim();
 
             try
             {
@@ -253,11 +272,11 @@ namespace MedSestriManipulations
             CurrentName.Text = "";
             EGNEntry.Text = "";
             PhoneEntry.Text = "";
+            UIN.Text = "";
+            TotalLabel.Text = $"{0:F2} лв";
 
-            foreach (var proc in AllProcedures)
+            foreach (var proc in AllProcedures.Where(p=>p.IsSelected==true))
                 proc.IsSelected = false;
-
-            UpdateTotal();
         }
 
         public static async Task<List<MedicalProcedureViewModel>> LoadProceduresAsync()
@@ -285,7 +304,7 @@ namespace MedSestriManipulations
 
         private async void OnLoadMore(object sender, EventArgs e)
         {
-            await LoadMoreProceduresAsync();
+            await LoadMorePaginationProceduresAsync();
         }
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
@@ -293,20 +312,38 @@ namespace MedSestriManipulations
             _ = FilterProceduresAsync();
         }
 
+        //private async Task FilterProceduresAsync()
+        //{
+        //    Procedures.Clear();
+        //    paginationState.Reset();
+        //    await Task.Delay(150);
+        //    await LoadMorePaginationProceduresAsync();
+        //}
+
+        private CancellationTokenSource _filterCts;
+
         private async Task FilterProceduresAsync()
         {
-            Procedures.Clear();
-            paginationState.Reset();
-            await Task.Delay(150);
-            await LoadMoreProceduresAsync();
+            _filterCts?.Cancel();
+            _filterCts = new CancellationTokenSource();
+            var token = _filterCts.Token;
+
+            try
+            {
+                await Task.Delay(300, token);
+                Procedures.Clear();
+                paginationState.Reset();
+                await LoadMorePaginationProceduresAsync();
+            }
+            catch (TaskCanceledException) { }
         }
 
-        private async Task LoadMoreProceduresAsync()
+        private async Task LoadMorePaginationProceduresAsync()
         {
             if (paginationState.IsLoading) return;
             paginationState.IsLoading = true;
 
-            var matching = await GetFilteredProvedureAsync();
+            var matching = await GetFilteredProcedureAsync();
 
 
             var toAdd = matching.Except(Procedures).ToList();
@@ -317,7 +354,7 @@ namespace MedSestriManipulations
             paginationState.IsLoading = false;
         }
 
-        private async Task<List<MedicalProcedureViewModel>> GetFilteredProvedureAsync()
+        private async Task<List<MedicalProcedureViewModel>> GetFilteredProcedureAsync()
         {
             var keyword = SearchBar.Text?.ToLower() ?? "";
             return await Task.Run(() =>
@@ -328,27 +365,10 @@ namespace MedSestriManipulations
                     .ToList());
         }
 
-        private void UpdateTotal()
+        private void UpdateTotalSum()
         {
             var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
             TotalLabel.Text = $"{total:F2} лв";
-        }
-
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            //Shell.SetNavBarIsVisible(this, false);
-            if (AllProcedures.Count == 0)
-            {
-                await LoadAsyncIfNeeded();
-            }
-
-            if (AllNames.Count == 0 || AllEgn.Count == 0 || AllPhones.Count == 0)
-            {
-                AllNames = await HistoryService.GetAllPreviousNamesAsync();
-                AllEgn = await HistoryService.GetAllPreviousEGNAsync();
-                AllPhones = await HistoryService.GetAllPreviousPhonesAsync();
-            }
         }
 
         private async Task LoadAsyncIfNeeded()
