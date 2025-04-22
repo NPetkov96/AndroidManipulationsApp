@@ -20,6 +20,8 @@ namespace MedSestriManipulations
         private List<string> AllPhones = new();
 
         private readonly PaginationState paginationState = new();
+        private readonly SmsPermissionService _smsPermissionService = new();
+
 
         public MainPage()
         {
@@ -40,6 +42,12 @@ namespace MedSestriManipulations
                 AllNames = await HistoryService.GetAllPreviousNamesAsync();
                 AllEgn = await HistoryService.GetAllPreviousEGNAsync();
                 AllPhones = await HistoryService.GetAllPreviousPhonesAsync();
+            }
+
+            bool granted = await _smsPermissionService.EnsureSmsPermissionAsync();
+            if (!granted)
+            {
+                await DisplayAlert("Разрешение отказано", "Без достъп до SMS, приложението няма да работи напълно.", "OK");
             }
         }
 

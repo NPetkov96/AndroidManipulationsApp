@@ -13,16 +13,67 @@ namespace MedSestriManipulations.Services
             loaded.OrderByDescending(e => e.Date).ToList();
 
             //Филтрирай записите до последните 10 дни
-           var recent = loaded
-               .Where(e => e.Date >= DateTime.Now.AddDays(-10))
-               .OrderByDescending(e => e.Date)
-               .ToList();
+            var recent = loaded
+                .Where(e => e.Date >= DateTime.Now.AddDays(-10))
+                .OrderByDescending(e => e.Date)
+                .ToList();
 
             HistoryItems = new ObservableCollection<RequestHistoryEntry>(recent);
 
             // Презапиши файла без старите
             await HistoryStorageService.SaveAsync(loaded);
         }
+
+
+        public static async Task TryAutoAttachLabInfoAsync(string name, string birthDate, string labId, string labPassword)
+        {
+            string Normalize(string text) => text?.ToLower().Replace(" ", "").Trim() ?? "";
+
+            string? GetBirthDateFromEGN(string egn)
+            {
+                if (string.IsNullOrWhiteSpace(egn) || egn.Length < 10)
+                    return null;
+
+                try
+                {
+                    int year = int.Parse(egn.Substring(0, 2));
+                    int month = int.Parse(egn.Substring(2, 2));
+                    int day = int.Parse(egn.Substring(4, 2));
+
+                    if (month > 40) { year += 2000; month -= 40; }
+                    else if (month > 20) { year += 1800; month -= 20; }
+                    else { year += 1900; }
+
+                    return new DateTime(year, month, day).ToString("MM.dd.yyyy");
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            var matched = HistoryItems.FirstOrDefault(p =>
+                Normalize(p.Name) == Normalize(name) &&
+                GetBirthDateFromEGN(p.EGN) == birthDate);
+
+            if (matched != null)
+            {
+                if (!matched.Note.Contains("Lab ID"))
+                {
+                    matched.LabId = labId;
+                    matched.LabPassword = labPassword;
+
+                    string labInfo = $"ID: {matched.LabId}\nPassword: {matched.LabPassword}";
+
+                    matched.Note += (string.IsNullOrWhiteSpace(matched.Note) ? "" : "\n \n") + labInfo;
+                    await HistoryStorageService.SaveAsync(HistoryItems.ToList());
+                }
+            }
+        }
+
+
+
+
         public static async Task<IEnumerable<RequestHistoryEntry>> GetHistoryItemsAsync()
         {
             return await Task.Run(() => HistoryItems);

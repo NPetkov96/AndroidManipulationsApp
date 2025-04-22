@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace MedSestriManipulations
 {
@@ -7,6 +8,9 @@ namespace MedSestriManipulations
     {
         public static MauiApp CreateMauiApp()
         {
+            // Ensure the Encoding.RegisterProvider call is inside a method, not at the class level.
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             var builder = MauiApp.CreateBuilder();
 
             builder
@@ -19,7 +23,7 @@ namespace MedSestriManipulations
             });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

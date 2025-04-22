@@ -9,6 +9,8 @@ namespace MedSestriManipulations.Models
         public string Note { get; set; } = "";
         public string EGN { get; set; } = "";
         public string Phone { get; set; } = "";
+        public string LabId { get; set; } = "";
+        public string LabPassword { get; set; } = "";
         public DateTime Date { get; set; }
 
         private bool isExpanded;

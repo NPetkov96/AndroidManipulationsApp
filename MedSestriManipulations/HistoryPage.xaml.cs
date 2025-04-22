@@ -12,6 +12,8 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
     public ICommand ToggleCommand { get; }
     public ICommand RemoveCommand { get; }
     public ICommand CopyCommand { get; }
+    public ICommand SendSmsCommand { get; }
+
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -21,14 +23,39 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
     {
 
         InitializeComponent();
+
         BindingContext = this;
 
         _ = LoadHistoryAsync();
+        //SubscribeToSmsMatching(); // <- тук
+
 
         ToggleCommand = new AsyncCommand<RequestHistoryEntry>(OnToggle);
         RemoveCommand = new AsyncCommand<RequestHistoryEntry>(OnRemove);
         CopyCommand = new AsyncCommand<RequestHistoryEntry>(OnCopy);
+        SendSmsCommand = new AsyncCommand<RequestHistoryEntry>(SendSmsToPatient);
 
+    }
+
+    private async Task SendSmsToPatient(RequestHistoryEntry entry)
+    {
+        if (string.IsNullOrWhiteSpace(entry.LabId) || string.IsNullOrWhiteSpace(entry.LabPassword))
+        {
+            await Application.Current.MainPage.DisplayAlert("Грешка", "Няма открито ID и парола в бележката.", "OK");
+            return;
+        }
+        
+        string message = $"Здравейте, резултатите ви са налични.\nID: {entry.LabId}\nПарола: {entry.LabPassword}";
+
+        try
+        {
+            var sms = new SmsMessage(message, entry.Phone);
+            await Sms.Default.ComposeAsync(sms);
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("Грешка при изпращане", ex.Message, "OK");
+        }
     }
 
     private async Task LoadHistoryAsync()
