@@ -43,8 +43,11 @@ namespace MedSestriManipulations
             }
 
             bool granted = await _smsPermissionService.EnsureSmsPermissionAsync();
-            if (!granted) await DisplayAlert("Разрешение отказано", "Без достъп до SMS, приложението няма да работи напълно.", "OK");
-
+            if (!granted)
+            {
+                await DisplayAlert("Разрешение отказано", "Без достъп до SMS, приложението няма да работи напълно.", "OK");
+                return;
+            }
             await SmsRecoveryService.RecoverAsync(); // ще сработи само на Android
         }
 

@@ -23,12 +23,19 @@ namespace MedSestriManipulations.Services.SMS
 
                 var projection = new[] { "_id", "address", "date", "body" };
 
-                var since = LastSmsReadTracker.GetLastReadTime();
+                var since = LastSmsReadTracker.GetLastReadTime().AddMinutes(-10);
                 var unixSince = new DateTimeOffset(since).ToUnixTimeMilliseconds();
-                var selection = $"date >= {unixSince}')";
+                var selection = $"date >= {unixSince}";
                 //var selection = $"date >= {unixSince} AND (address = '1917' OR address = '+359882259007')";
 
                 var cursor = contentResolver.Query(uri, projection, selection, null, "date ASC");
+
+                System.Diagnostics.Debug.WriteLine("[SMS Recovery] Стартиране...");
+                if (cursor == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("[SMS Recovery] Курсорът е null – вероятно нямаш разрешение.");
+                    return;
+                }
 
                 if (cursor != null && cursor.MoveToFirst())
                 {
