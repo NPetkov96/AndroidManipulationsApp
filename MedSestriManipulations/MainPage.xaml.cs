@@ -1,5 +1,6 @@
 using MedSestriManipulations.Models;
 using MedSestriManipulations.Services;
+using MedSestriManipulations.Services.SMS;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.Json;
@@ -32,10 +33,7 @@ namespace MedSestriManipulations
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            if (AllProcedures.Count == 0)
-            {
-                await LoadAsyncIfNeeded();
-            }
+            if (AllProcedures.Count == 0) await LoadAsyncIfNeeded();
 
             if (AllNames.Count == 0 || AllEgn.Count == 0 || AllPhones.Count == 0)
             {
@@ -45,10 +43,9 @@ namespace MedSestriManipulations
             }
 
             bool granted = await _smsPermissionService.EnsureSmsPermissionAsync();
-            if (!granted)
-            {
-                await DisplayAlert("Разрешение отказано", "Без достъп до SMS, приложението няма да работи напълно.", "OK");
-            }
+            if (!granted) await DisplayAlert("Разрешение отказано", "Без достъп до SMS, приложението няма да работи напълно.", "OK");
+
+            await SmsRecoveryService.RecoverAsync(); // ще сработи само на Android
         }
 
         private async void ShowMoreInfoForProcedure(object sender, EventArgs e)
@@ -281,10 +278,11 @@ namespace MedSestriManipulations
             EGNEntry.Text = "";
             PhoneEntry.Text = "";
             UIN.Text = "";
-            TotalLabel.Text = $"{0:F2} лв";
 
             foreach (var proc in AllProcedures.Where(p=>p.IsSelected==true))
                 proc.IsSelected = false;
+
+            UpdateTotalSum();
         }
 
         public static async Task<List<MedicalProcedureViewModel>> LoadProceduresAsync()
@@ -319,14 +317,6 @@ namespace MedSestriManipulations
         {
             _ = FilterProceduresAsync();
         }
-
-        //private async Task FilterProceduresAsync()
-        //{
-        //    Procedures.Clear();
-        //    paginationState.Reset();
-        //    await Task.Delay(150);
-        //    await LoadMorePaginationProceduresAsync();
-        //}
 
         private CancellationTokenSource _filterCts;
 

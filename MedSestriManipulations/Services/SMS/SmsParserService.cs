@@ -1,4 +1,5 @@
-﻿using MedSestriManipulations.Services; // За достъп до LabResultsService и Parser
+﻿using MedSestriManipulations.Services;
+using MedSestriManipulations.Services.SMS;
 using System.Text.RegularExpressions;
 
 public static class SmsParserService
@@ -8,6 +9,8 @@ public static class SmsParserService
 
     public static async void OnSmsReceived(string body, string sender)
     {
+        //if (sender != "1917") return;
+
         var (id, password) = ParseCredentials(body);
 
         if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(password))
@@ -26,9 +29,9 @@ public static class SmsParserService
                 {
                     var (name, birthDate) = result.Value;
                     await HistoryService.TryAutoAttachLabInfoAsync(name, birthDate, id, password);
+                    //var smsDate = DateTimeOffset.FromUnixTimeMilliseconds(dateMillis).DateTime;
 
-                    // известяваме, че сме разпознали пациент
-                    //OnPatientMatched?.Invoke(name, birthDate, id, password);
+                    LastSmsReadTracker.SaveLastReadTime(DateTime.Now);
                 }
             }
         }

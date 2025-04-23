@@ -52,8 +52,9 @@ namespace MedSestriManipulations.Services
                 }
             }
 
-            var matched = HistoryItems.FirstOrDefault(p =>
-                Normalize(p.Name) == Normalize(name) &&
+            var matched = HistoryItems
+                .Where(p=>p.LabPassword == "" && p.LabPassword == "")
+                .FirstOrDefault(p => Normalize(p.Name) == Normalize(name) &&
                 GetBirthDateFromEGN(p.EGN) == birthDate);
 
             if (matched != null)

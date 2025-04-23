@@ -1,4 +1,4 @@
-﻿namespace MedSestriManipulations.Services
+﻿namespace MedSestriManipulations.Services.SMS
 {
     public class SmsPermissionService
     {
