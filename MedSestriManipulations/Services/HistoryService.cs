@@ -44,7 +44,7 @@ namespace MedSestriManipulations.Services
                     else if (month > 20) { year += 1800; month -= 20; }
                     else { year += 1900; }
 
-                    return new DateTime(year, month, day).ToString("MM.dd.yyyy");
+                    return new DateTime(year, month, day).ToString("dd.MM.yyyy");
                 }
                 catch
                 {
