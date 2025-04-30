@@ -5,9 +5,7 @@
              x:Class="MedSestriManipulations.MainPage">
 
     <AbsoluteLayout>
-
-        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1"
-                    AbsoluteLayout.LayoutFlags="All">
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
             <VerticalStackLayout Padding="10" Spacing="5">
 
                 <!-- Бутоните -->
@@ -104,6 +102,18 @@
         <Frame BackgroundColor="#007BFF" CornerRadius="35" HeightRequest="70" WidthRequest="70" Padding="0" AbsoluteLayout.LayoutBounds="0.96,0.98,60,60" AbsoluteLayout.LayoutFlags="PositionProportional">
             <ImageButton Source="history.png" Command="{x:Static services:NavigationService.NavigateToHistoryCommand}" BackgroundColor="Transparent" WidthRequest="40" HeightRequest="40" HorizontalOptions="Center" VerticalOptions="Center"/>
         </Frame>
+
+        <!-- Зареждащ overlay -->
+        <Grid x:Name="LoadingOverlay" BackgroundColor="#80000000" IsVisible="False" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                <ActivityIndicator IsRunning="True"
+                           IsVisible="True"
+                           WidthRequest="60"
+                           HeightRequest="60"
+                           Color="White" />
+                <Label Text="Зареждане на SMS..." TextColor="White" FontSize="16" HorizontalOptions="Center"/>
+            </StackLayout>
+        </Grid>
 
     </AbsoluteLayout>
 </ContentPage>

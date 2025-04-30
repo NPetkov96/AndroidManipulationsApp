@@ -81,19 +81,13 @@
 		<AndroidKeyStore>False</AndroidKeyStore>
 		<EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
-
-	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
-		<AndroidKeyStore>False</AndroidKeyStore>
-	</PropertyGroup>-->
-
-	<!--<PropertyGroup>
-		<PublishTrimmed>false</PublishTrimmed>
-		<EnableLinking>false</EnableLinking>
-		--><!-- само за тест, после върни на true --><!--
-	</PropertyGroup>-->
-
+	
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<RunAOTCompilation>false</RunAOTCompilation>
 	</PropertyGroup>
+
+	<!--<PropertyGroup>
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+	</PropertyGroup>-->
 
 </Project>

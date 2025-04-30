@@ -48,7 +48,16 @@ namespace MedSestriManipulations
                 await DisplayAlert("Разрешение отказано", "Без достъп до SMS, приложението няма да работи напълно.", "OK");
                 return;
             }
-            await SmsRecoveryService.RecoverAsync(); // ще сработи само на Android
+
+            try
+            {
+                LoadingOverlay.IsVisible = true;
+                await SmsRecoveryService.RecoverAsync(); // ще сработи само на Android
+            }
+            finally
+            {
+                LoadingOverlay.IsVisible = false;
+            }
         }
 
         private async void ShowMoreInfoForProcedure(object sender, EventArgs e)
