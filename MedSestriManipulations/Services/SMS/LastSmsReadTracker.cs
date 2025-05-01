@@ -15,7 +15,7 @@ namespace MedSestriManipulations.Services.SMS
         {
             var value = Preferences.Get(Key, null);
             return DateTime.TryParse(value, null, DateTimeStyles.RoundtripKind, out var result)
-                ? result.ToLocalTime() // ако искаш да го ползваш в локално време
+                ? result.ToLocalTime()
                 : DateTime.Now.AddDays(-1);
         }
     }

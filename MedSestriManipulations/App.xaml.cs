@@ -1,4 +1,6 @@
-﻿namespace MedSestriManipulations
+﻿using MedSestriManipulations.Services.History;
+
+namespace MedSestriManipulations
 {
     public partial class App : Application
     {

@@ -1,6 +1,4 @@
-﻿using static SmsParserService;
-
-namespace MedSestriManipulations.Services.SMS
+﻿namespace MedSestriManipulations.Services.SMS
 {
     public static class SmsRecoveryService
     {
@@ -46,7 +44,8 @@ namespace MedSestriManipulations.Services.SMS
                         var dateMillis = cursor.GetLong(cursor.GetColumnIndexOrThrow("date"));
                         var smsDate = DateTimeOffset.FromUnixTimeMilliseconds(dateMillis).DateTime;
 
-                        OnSmsReceived(body, sender);
+                        var parserService = MauiProgram.AppInstance.Services.GetService<SmsParserService>();
+                        _ = parserService?.HandleSmsAsync(body, sender);
                         LastSmsReadTracker.SaveLastReadTime(smsDate);
 
                     } while (cursor.MoveToNext());

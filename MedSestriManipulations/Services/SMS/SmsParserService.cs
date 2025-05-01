@@ -1,52 +1,63 @@
-﻿using MedSestriManipulations.Services;
-using MedSestriManipulations.Services.SMS;
+﻿// Refactored SmsParserService - no static, DI-ready
+
+using MedSestriManipulations.Services.History;
+using MedSestriManipulations.Services.Laboratory;
 using System.Text.RegularExpressions;
 
-public static class SmsParserService
+namespace MedSestriManipulations.Services.SMS
 {
-    public static event Action<string, string>? OnCredentialsParsed;
-    public static event Action<string, string, string, string>? OnPatientMatched; // name, date, id, pass
-
-    public static async void OnSmsReceived(string body, string sender)
+    public class SmsParserService
     {
-        //if (sender != "1917") return;
+        private readonly HistoryService _historyService;
+        private readonly LabResultsService _labResultsService;
+        private readonly LabResultsParser _labResultsParser;
 
-        var (id, password) = ParseCredentials(body);
+        // Events as instance members
+        public event Action<string, string>? CredentialsParsed;
+        public event Action<string, string, string, string>? PatientMatched;
 
-        if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(password))
+        public SmsParserService(HistoryService historyService)
         {
-            OnCredentialsParsed?.Invoke(id, password);
+            _historyService = historyService;
+            _labResultsService = new LabResultsService();
+            _labResultsParser = new LabResultsParser();
+        }
 
-            var labService = new LabResultsService();
-            var html = await labService.GetResultsHtmlAsync(id, password);
+        public async Task HandleSmsAsync(string body, string sender)
+        {
+            var (id, password) = ParseCredentials(body);
 
-            if (html != null)
+            if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(password))
             {
-                var parser = new LabResultsParser();
-                var result = parser.ParsePatientInfo(html);
+                CredentialsParsed?.Invoke(id, password);
 
-                if (result != null)
+                var html = await _labResultsService.GetResultsHtmlAsync(id, password);
+                if (html != null)
                 {
-                    var (name, birthDate) = result.Value;
-                    await HistoryService.TryAutoAttachLabInfoAsync(name, birthDate, id, password);
-                    //var smsDate = DateTimeOffset.FromUnixTimeMilliseconds(dateMillis).DateTime;
+                    var result = _labResultsParser.ParsePatientInfo(html);
+                    if (result != null)
+                    {
+                        var (name, birthDate) = result.Value;
+                        await _historyService.TryAutoAttachLabInfoAsync(name, birthDate, id, password);
 
-                    LastSmsReadTracker.SaveLastReadTime(DateTime.Now);
+                        PatientMatched?.Invoke(name, birthDate, id, password);
+                        LastSmsReadTracker.SaveLastReadTime(DateTime.Now);
+                    }
                 }
             }
         }
-    }
 
-    private static (string id, string password) ParseCredentials(string sms)
-    {
-        var match = Regex.Match(sms, @"ID:\s*(\d+)\s*,\s*Parola:\s*(\d+)", RegexOptions.IgnoreCase);
-        if (match.Success)
+        private static (string id, string password) ParseCredentials(string sms)
         {
-            var id = match.Groups[1].Value;
-            var password = match.Groups[2].Value;
-            return (id, password);
-        }
+            var match = Regex.Match(sms, @"ID:\s*(\d+)\s*,\s*Parola:\s*(\d+)", RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                var id = match.Groups[1].Value;
+                var password = match.Groups[2].Value;
+                return (id, password);
+            }
 
-        return (null, null);
+            return (null, null);
+        }
     }
 }

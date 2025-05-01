@@ -1,5 +1,5 @@
 ﻿using MedSestriManipulations.Models;
-using MedSestriManipulations.Services;
+using MedSestriManipulations.Services.History;
 using MvvmHelpers.Commands;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -14,30 +14,35 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
     public ICommand CopyCommand { get; }
     public ICommand SendSmsCommand { get; }
 
+    private readonly HistoryService _historyService;
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    private List<RequestHistoryEntry> _allItems = new();
+    private List<Patient> _allItems = new();
 
-    public HistoryPage()
+    public HistoryPage(HistoryService historyService)
     {
 
         InitializeComponent();
 
         BindingContext = this;
+        _historyService = historyService;
 
         _ = LoadHistoryAsync();
-        //SubscribeToSmsMatching(); // <- тук
 
-
-        ToggleCommand = new AsyncCommand<RequestHistoryEntry>(OnToggle);
-        RemoveCommand = new AsyncCommand<RequestHistoryEntry>(OnRemove);
-        CopyCommand = new AsyncCommand<RequestHistoryEntry>(OnCopy);
-        SendSmsCommand = new AsyncCommand<RequestHistoryEntry>(SendSmsToPatient);
+        ToggleCommand = new AsyncCommand<Patient>(OnToggle);
+        RemoveCommand = new AsyncCommand<Patient>(OnRemove);
+        CopyCommand = new AsyncCommand<Patient>(OnCopy);
+        SendSmsCommand = new AsyncCommand<Patient>(SendSmsToPatient);
 
     }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await LoadHistoryAsync();
+    }
 
-    private async Task SendSmsToPatient(RequestHistoryEntry entry)
+    private async Task SendSmsToPatient(Patient entry)
     {
         if (string.IsNullOrWhiteSpace(entry.LabId) || string.IsNullOrWhiteSpace(entry.LabPassword))
         {
@@ -49,7 +54,7 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
 
         try
         {
-            var sms = new SmsMessage(message, entry.Phone);
+            var sms = new SmsMessage(message, entry.PhoneNumber);
             await Sms.Default.ComposeAsync(sms);
         }
         catch (Exception ex)
@@ -60,9 +65,20 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
 
     private async Task LoadHistoryAsync()
     {
-        var items = await HistoryService.GetHistoryItemsAsync();
-        HistoryList.ItemsSource = items;
-        _allItems = items.ToList(); 
+        try
+        {
+            LoadingIndicator.IsVisible = true;
+            LoadingIndicator.IsRunning = true;
+
+            var items = await _historyService.GetHistoryItemsAsync();
+            HistoryList.ItemsSource = items;
+            _allItems = items.ToList();
+        }
+        finally
+        {
+            LoadingIndicator.IsRunning = false;
+            LoadingIndicator.IsVisible = false;
+        }
     }
 
     private void UpdateExpanderVisibility(string whichExpanded, bool isExpanded)
@@ -121,7 +137,7 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
         var keyword = e.NewTextValue?.Trim();
         HistoryList.ItemsSource = string.IsNullOrWhiteSpace(keyword)
             ? _allItems
-            : _allItems.Where(x => x.Name.StartsWith(keyword, StringComparison.OrdinalIgnoreCase)).ToList();
+            : _allItems.Where(x => x.FullName.StartsWith(keyword, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
     private void OnSearchByEGNChanged(object sender, TextChangedEventArgs e)
@@ -137,20 +153,20 @@ public partial class HistoryPage : ContentPage, INotifyPropertyChanged
         var keyword = e.NewTextValue?.Trim();
         HistoryList.ItemsSource = string.IsNullOrWhiteSpace(keyword)
             ? _allItems
-            : _allItems.Where(x => x.Phone.StartsWith(keyword)).ToList();
+            : _allItems.Where(x => x.PhoneNumber.StartsWith(keyword)).ToList();
     }
 
-    private async Task OnCopy(RequestHistoryEntry entry)
+    private async Task OnCopy(Patient entry)
     {
         await Clipboard.SetTextAsync(entry.Note);
     }
 
-    private async Task OnRemove(RequestHistoryEntry entry)
+    private async Task OnRemove(Patient entry)
     {
-        await HistoryService.RemoveAsync(entry);
+        await _historyService.RemoveAsync(entry);
     }
 
-    private async Task OnToggle(RequestHistoryEntry entry)
+    private async Task OnToggle(Patient entry)
     {
         entry.IsExpanded = !entry.IsExpanded;
     }

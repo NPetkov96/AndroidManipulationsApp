@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Maui;
+using MedSestriManipulations.Services.History;
+using MedSestriManipulations.Services.SMS;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
@@ -6,9 +8,10 @@ namespace MedSestriManipulations
 {
     public static class MauiProgram
     {
+        public static MauiApp AppInstance { get; private set; }
+
         public static MauiApp CreateMauiApp()
         {
-            // Ensure the Encoding.RegisterProvider call is inside a method, not at the class level.
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             var builder = MauiApp.CreateBuilder();
@@ -22,11 +25,21 @@ namespace MedSestriManipulations
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+            builder.Services.AddHttpClient("ApiClient", client =>
+            {
+                client.BaseAddress = new Uri("https://medsestribackendapi20250430210231-d9b9grdkdnecc0aw.italynorth-01.azurewebsites.net/");
+            });
+
+            builder.Services.AddSingleton<HistoryService>();
+            builder.Services.AddSingleton<SmsParserService>();
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+            var app = builder.Build();
+            AppInstance = app;
+            return app;
         }
     }
 }

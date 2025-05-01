@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
+using MedSestriManipulations.Services.SMS;
 
 namespace MedSestriManipulations.Platforms.Android
 {
@@ -37,7 +38,8 @@ namespace MedSestriManipulations.Platforms.Android
 
                 if (!string.IsNullOrEmpty(body))
                 {
-                    SmsParserService.OnSmsReceived(body, sender);
+                    var parserService = MauiProgram.AppInstance.Services.GetService<SmsParserService>();
+                    _ = parserService?.HandleSmsAsync(body, sender); // асинхронно
                 }
             }
         }

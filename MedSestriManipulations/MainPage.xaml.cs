@@ -1,5 +1,6 @@
 using MedSestriManipulations.Models;
 using MedSestriManipulations.Services;
+using MedSestriManipulations.Services.History;
 using MedSestriManipulations.Services.SMS;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -12,6 +13,8 @@ namespace MedSestriManipulations
     {
         ObservableCollection<MedicalProcedureViewModel> AllProcedures = new();
         ObservableCollection<MedicalProcedureViewModel> Procedures = new();
+        private readonly HistoryService _historyService;
+
         public ObservableCollection<string> NameSuggestions { get; set; } = new();
         private List<string> AllNames = new();
         public ObservableCollection<string> EGNSuggestions { get; set; } = new();
@@ -24,10 +27,11 @@ namespace MedSestriManipulations
         private readonly SmsPermissionService _smsPermissionService = new();
 
 
-        public MainPage()
+        public MainPage(HistoryService historyService)
         {
             InitializeComponent();
             BindingContext = this;
+            _historyService = historyService;
         }
 
         protected override async void OnAppearing()
@@ -37,9 +41,9 @@ namespace MedSestriManipulations
 
             if (AllNames.Count == 0 || AllEgn.Count == 0 || AllPhones.Count == 0)
             {
-                AllNames = await HistoryService.GetAllPreviousNamesAsync();
-                AllEgn = await HistoryService.GetAllPreviousEGNAsync();
-                AllPhones = await HistoryService.GetAllPreviousPhonesAsync();
+                AllNames = await _historyService.GetAllPreviousNamesAsync();
+                AllEgn = await _historyService.GetAllPreviousEGNAsync();
+                AllPhones = await _historyService.GetAllPreviousPhonesAsync();
             }
 
             bool granted = await _smsPermissionService.EnsureSmsPermissionAsync();
@@ -267,13 +271,14 @@ namespace MedSestriManipulations
                     Title = "Изпрати чрез Viber"
                 });
 
-                await HistoryService.AddAsync(new RequestHistoryEntry
+                await _historyService.AddAsync(new Patient
                 {
-                    Name = name,
+                    Id = Guid.NewGuid(),
+                    FullName = name,
                     Note = message,
                     EGN = egn,
-                    Phone = phone,
-                    Date = DateTime.Now
+                    PhoneNumber = phone,
+                    CreatedAt = DateTime.UtcNow
                 });
 
             }
@@ -389,7 +394,7 @@ namespace MedSestriManipulations
             ProcedureList.ItemsSource = Procedures;
             await Task.WhenAll(
                 FilterProceduresAsync(),
-                HistoryService.InitializeAsync());
+                _historyService.ReadAllPatientsFromCloud());
         }
     }
 }

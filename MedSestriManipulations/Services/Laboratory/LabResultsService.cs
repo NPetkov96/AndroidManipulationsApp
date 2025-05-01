@@ -1,8 +1,7 @@
 ﻿using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 
-namespace MedSestriManipulations.Services
+namespace MedSestriManipulations.Services.Laboratory
 {
     public class LabResultsService
     {

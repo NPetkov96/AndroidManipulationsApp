@@ -46,16 +46,15 @@
                                 <VerticalStackLayout>
 
                                     <!-- Заглавие, кликваемо -->
-                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" TextColor="DarkBlue">
+                                    <Label Text="{Binding FullName}" FontAttributes="Bold" FontSize="16" TextColor="DarkBlue">
                                         <Label.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.ToggleCommand}"
-                                          CommandParameter="{Binding .}" />
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:HistoryPage}}, Path=BindingContext.ToggleCommand}" CommandParameter="{Binding .}" />
                                         </Label.GestureRecognizers>
                                     </Label>
 
                                     <!-- Подробности — видими само ако IsExpanded е true -->
                                     <StackLayout x:Name="DetailsSection" IsVisible="{Binding IsExpanded}" ClassId="DetailsSection">
-                                        <Label Text="{Binding Date, StringFormat='Дата: {0:dd.MM.yyyy HH:mm}'}" />
+                                        <Label Text="{Binding CreatedAtLocal, StringFormat='Дата: {0:dd.MM.yyyy HH:mm}'}" />
                                         <Label Text="{Binding Note}" />
                                         <Grid ColumnSpacing="6" Margin="0,10,0,0">
                                             <Grid.ColumnDefinitions>
@@ -83,5 +82,10 @@
             <ImageButton Source="home.png" Command="{x:Static services:NavigationService.NavigateToHomeCommand}" BackgroundColor="Transparent" WidthRequest="70" HeightRequest="70" HorizontalOptions="Center" VerticalOptions="Center"/>
         </Frame>
 
+        <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False" Color="DarkBlue" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1"
+    AbsoluteLayout.LayoutFlags="PositionProportional"
+    WidthRequest="50"
+    HeightRequest="50" />
+     
     </AbsoluteLayout>
 </ContentPage>

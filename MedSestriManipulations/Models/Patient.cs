@@ -1,17 +1,19 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace MedSestriManipulations.Models
 {
-    public class RequestHistoryEntry : INotifyPropertyChanged
+    public class Patient : INotifyPropertyChanged
     {
-        public string Name { get; set; } = "";
+        public Guid Id { get; set; }
+        public string FullName { get; set; } = "";
         public string Note { get; set; } = "";
         public string EGN { get; set; } = "";
-        public string Phone { get; set; } = "";
+        public string PhoneNumber { get; set; } = "";
         public string LabId { get; set; } = "";
         public string LabPassword { get; set; } = "";
-        public DateTime Date { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         private bool isExpanded;
         public bool IsExpanded
@@ -26,6 +28,10 @@ namespace MedSestriManipulations.Models
                 }
             }
         }
+
+        [JsonIgnore]
+        public string CreatedAtLocal => CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

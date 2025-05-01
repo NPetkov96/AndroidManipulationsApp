@@ -1,19 +1,17 @@
 ﻿using HtmlAgilityPack;
 
-namespace MedSestriManipulations.Services
+namespace MedSestriManipulations.Services.Laboratory
 {
     public class LabResultsParser
     {
         public (string FullName, string BirthDate)? ParsePatientInfo(string html)
         {
-            var doc = new HtmlAgilityPack.HtmlDocument();
+            var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            // Търсим <span class='text-md'><strong>ИВАНКА МЛАДЕНОВА ЯНАЧКОВА</strong></span>
             var nameNode = doc.DocumentNode
                 .SelectSingleNode("//span[@class='text-md']/strong");
 
-            // Търсим следващия <span class='text-lg'> Роден на: 06.11.1931</span>
             var birthNode = doc.DocumentNode
                 .SelectSingleNode("//span[@class='text-lg' and contains(text(),'Роден на:')]");
 
