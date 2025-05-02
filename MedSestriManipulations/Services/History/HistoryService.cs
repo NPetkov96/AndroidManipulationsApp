@@ -14,9 +14,9 @@ namespace MedSestriManipulations.Services.History
         {
             _httpClient = httpClientFactory.CreateClient("ApiClient");
         }
-        public async Task AddAsync(Patient entry)
+        public async Task<HttpResponseMessage> AddAsync(Patient entry)
         {
-            await _httpClient.PostAsJsonAsync("api/patients", entry);
+            return await _httpClient.PostAsJsonAsync("api/patients", entry);
         }
 
         public async Task RemoveAsync(Patient entry)
@@ -31,7 +31,7 @@ namespace MedSestriManipulations.Services.History
         public async Task ReadAllPatientsFromCloud()
         {
             var response = await _httpClient.GetAsync("api/patients");
-         
+
             var json = await response.Content.ReadAsStringAsync();
             var patients = JsonSerializer.Deserialize<List<Patient>>(json, new JsonSerializerOptions
             {
@@ -74,7 +74,7 @@ namespace MedSestriManipulations.Services.History
             }
 
             var matched = HistoryItems
-                .Where(p=>p.LabPassword == "" && p.LabPassword == "")
+                .Where(p => p.LabPassword == "" && p.LabPassword == "")
                 .FirstOrDefault(p => Normalize(p.FullName) == Normalize(name) &&
                 GetBirthDateFromEGN(p.EGN) == birthDate);
 

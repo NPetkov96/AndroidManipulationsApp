@@ -11,27 +11,29 @@ namespace MedSestriManipulations
 {
     public partial class MainPage : ContentPage
     {
-        ObservableCollection<MedicalProcedureViewModel> AllProcedures = new();
-        ObservableCollection<MedicalProcedureViewModel> Procedures = new();
-        private readonly HistoryService _historyService;
-
-        public ObservableCollection<string> NameSuggestions { get; set; } = new();
         private List<string> AllNames = new();
-        public ObservableCollection<string> EGNSuggestions { get; set; } = new();
         private List<string> AllEgn = new();
-
-        public ObservableCollection<string> PhoneSuggestions { get; set; } = new();
         private List<string> AllPhones = new();
+        public ObservableCollection<string> NameSuggestions { get; set; } = new();
+        public ObservableCollection<string> EGNSuggestions { get; set; } = new();
+        public ObservableCollection<string> PhoneSuggestions { get; set; } = new();
+        public ObservableCollection<MedicalProcedureViewModel> AllProcedures = new();
+        public ObservableCollection<MedicalProcedureViewModel> Procedures = new();
+        private readonly HistoryService _historyService;
+        private readonly SmsPermissionService _smsPermissionService;
+        private readonly PaginationState _paginationState;
 
-        private readonly PaginationState paginationState = new();
-        private readonly SmsPermissionService _smsPermissionService = new();
 
 
-        public MainPage(HistoryService historyService)
+
+
+        public MainPage(HistoryService historyService, SmsPermissionService smsPermissionService, PaginationState paginationState)
         {
             InitializeComponent();
             BindingContext = this;
             _historyService = historyService;
+            _smsPermissionService = smsPermissionService;
+            _paginationState = paginationState;
         }
 
         protected override async void OnAppearing()
@@ -271,7 +273,7 @@ namespace MedSestriManipulations
                     Title = "Изпрати чрез Viber"
                 });
 
-                await _historyService.AddAsync(new Patient
+                var response = await _historyService.AddAsync(new Patient
                 {
                     Id = Guid.NewGuid(),
                     FullName = name,
@@ -279,7 +281,18 @@ namespace MedSestriManipulations
                     EGN = egn,
                     PhoneNumber = phone,
                     CreatedAt = DateTime.UtcNow
+
+
                 });
+
+                if (response.IsSuccessStatusCode)
+                {
+                    CLearClicked();
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Грешка", "Неуспешно записване в историята", "ОК");
+                }
 
             }
             catch (Exception ex)
@@ -291,12 +304,17 @@ namespace MedSestriManipulations
 
         private void OnClearClicked(object sender, EventArgs e)
         {
+            CLearClicked();
+        }
+
+        private void CLearClicked()
+        {
             CurrentName.Text = "";
             EGNEntry.Text = "";
             PhoneEntry.Text = "";
             UIN.Text = "";
 
-            foreach (var proc in AllProcedures.Where(p=>p.IsSelected==true))
+            foreach (var proc in AllProcedures.Where(p => p.IsSelected == true))
                 proc.IsSelected = false;
 
             UpdateTotalSum();
@@ -347,7 +365,7 @@ namespace MedSestriManipulations
             {
                 await Task.Delay(300, token);
                 Procedures.Clear();
-                paginationState.Reset();
+                _paginationState.Reset();
                 await LoadMorePaginationProceduresAsync();
             }
             catch (TaskCanceledException) { }
@@ -355,8 +373,8 @@ namespace MedSestriManipulations
 
         private async Task LoadMorePaginationProceduresAsync()
         {
-            if (paginationState.IsLoading) return;
-            paginationState.IsLoading = true;
+            if (_paginationState.IsLoading) return;
+            _paginationState.IsLoading = true;
 
             var matching = await GetFilteredProcedureAsync();
 
@@ -365,8 +383,8 @@ namespace MedSestriManipulations
             foreach (var item in toAdd)
                 Procedures.Add(item);
 
-            paginationState.CurrentIndex += matching.Count;
-            paginationState.IsLoading = false;
+            _paginationState.CurrentIndex += matching.Count;
+            _paginationState.IsLoading = false;
         }
 
         private async Task<List<MedicalProcedureViewModel>> GetFilteredProcedureAsync()
@@ -375,8 +393,8 @@ namespace MedSestriManipulations
             return await Task.Run(() =>
                 AllProcedures
                     .Where(p => p.Name.ToLower().Contains(keyword))
-                    .Skip(paginationState.CurrentIndex)
-                    .Take(paginationState.VisibleThreshold)
+                    .Skip(_paginationState.CurrentIndex)
+                    .Take(_paginationState.VisibleThreshold)
                     .ToList());
         }
 

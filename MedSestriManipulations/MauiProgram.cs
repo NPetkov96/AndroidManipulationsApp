@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using MedSestriManipulations.Services;
 using MedSestriManipulations.Services.History;
 using MedSestriManipulations.Services.SMS;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,8 @@ namespace MedSestriManipulations
 
             builder.Services.AddSingleton<HistoryService>();
             builder.Services.AddSingleton<SmsParserService>();
+            builder.Services.AddSingleton<SmsPermissionService>();
+            builder.Services.AddSingleton<PaginationState>();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -39,6 +42,8 @@ namespace MedSestriManipulations
 
             var app = builder.Build();
             AppInstance = app;
+            var historyService = app.Services.GetRequiredService<HistoryService>();
+            _ = historyService.ReadAllPatientsFromCloud();
             return app;
         }
     }
