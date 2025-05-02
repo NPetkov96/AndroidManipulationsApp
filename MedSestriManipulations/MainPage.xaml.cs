@@ -17,7 +17,8 @@ namespace MedSestriManipulations
         public ObservableCollection<string> NameSuggestions { get; set; } = new();
         public ObservableCollection<string> EGNSuggestions { get; set; } = new();
         public ObservableCollection<string> PhoneSuggestions { get; set; } = new();
-        public ObservableCollection<MedicalProcedureViewModel> AllProcedures = new();
+
+        public ObservableCollection<MedicalProcedureViewModel> CheckedProcedures = new();
         public ObservableCollection<MedicalProcedureViewModel> Procedures = new();
         private readonly HistoryService _historyService;
         private readonly SmsPermissionService _smsPermissionService;
@@ -39,7 +40,7 @@ namespace MedSestriManipulations
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            if (AllProcedures.Count == 0) await LoadAsyncIfNeeded();
+            if (CheckedProcedures.Count == 0) await LoadAsyncIfNeeded();
 
             if (AllNames.Count == 0 || AllEgn.Count == 0 || AllPhones.Count == 0)
             {
@@ -207,7 +208,7 @@ namespace MedSestriManipulations
 
         private async void OnSendClicked(object sender, EventArgs e)
         {
-            var selected = AllProcedures.Where(p => p.IsSelected).ToList();
+            var selected = CheckedProcedures.Where(p => p.IsSelected).ToList();
             var total = selected.Sum(p => p.Price);
 
             string name = CurrentName.Text?.Trim()!;
@@ -314,7 +315,7 @@ namespace MedSestriManipulations
             PhoneEntry.Text = "";
             UIN.Text = "";
 
-            foreach (var proc in AllProcedures.Where(p => p.IsSelected == true))
+            foreach (var proc in CheckedProcedures.Where(p => p.IsSelected == true))
                 proc.IsSelected = false;
 
             UpdateTotalSum();
@@ -391,7 +392,7 @@ namespace MedSestriManipulations
         {
             var keyword = SearchBar.Text?.ToLower() ?? "";
             return await Task.Run(() =>
-                AllProcedures
+                CheckedProcedures
                     .Where(p => p.Name.ToLower().Contains(keyword))
                     .Skip(_paginationState.CurrentIndex)
                     .Take(_paginationState.VisibleThreshold)
@@ -400,14 +401,14 @@ namespace MedSestriManipulations
 
         private void UpdateTotalSum()
         {
-            var total = AllProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
+            var total = CheckedProcedures.Where(p => p.IsSelected).Sum(p => p.Price);
             TotalLabel.Text = $"{total:F2} лв";
         }
 
         private async Task LoadAsyncIfNeeded()
         {
             var data = await LoadProceduresAsync();
-            AllProcedures = new ObservableCollection<MedicalProcedureViewModel>(data);
+            CheckedProcedures = new ObservableCollection<MedicalProcedureViewModel>(data);
 
             ProcedureList.ItemsSource = Procedures;
             await Task.WhenAll(
