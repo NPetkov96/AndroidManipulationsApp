@@ -8,7 +8,7 @@
 
 | Home Screen | Patient Entry | Request History |
 |-------------|----------------|------------------|
-| ![Home](screenshots/splash.jpg) | ![Form](screenshots/form.jpg) | ![History](screenshots/history.jpg) |
+| ![Home](https://github.com/NPetkov96/MedSestri/blob/master/MedSestriManipulations/Resources/Screenshots/app_icon.jpg) | ![Form](https://github.com/NPetkov96/MedSestri/blob/master/MedSestriManipulations/Resources/Screenshots/form.jpg) | ![History](https://github.com/NPetkov96/MedSestri/blob/master/MedSestriManipulations/Resources/Screenshots/history.jpg) |
 
 | Search View | App Icon |
 |-------------|-----------|
