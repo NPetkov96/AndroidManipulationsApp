@@ -12,7 +12,7 @@
 
 | Search View | App Icon |
 |-------------|-----------|
-| ![Search](screenshots/search.jpg) | ![App Icon](screenshots/app_icon.jpg) |
+| ![Search](screenshots/search.jpg) | ![App Icon](https://github.com/NPetkov96/MedSestri/blob/master/MedSestriManipulations/Resources/Screenshots/app_icon.jpg) |
 
 ---
 
