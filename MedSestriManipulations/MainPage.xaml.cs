@@ -24,10 +24,6 @@ namespace MedSestriManipulations
         private readonly SmsPermissionService _smsPermissionService;
         private readonly PaginationState _paginationState;
 
-
-
-
-
         public MainPage(HistoryService historyService, SmsPermissionService smsPermissionService, PaginationState paginationState)
         {
             InitializeComponent();
